@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Street Coffee - Бронирование столика</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #8B4513;
+            --secondary-color: #D2B48C;
+            --accent-color: #A0522D;
+            --light-color: #F5F5DC;
+            --dark-color: #3E2723;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+        }
+        
+        .navbar {
+            background-color: var(--primary-color);
+        }
+        
+        .navbar-brand, .nav-link {
+            color: var(--light-color) !important;
+        }
+        
+        .nav-link:hover {
+            color: var(--secondary-color) !important;
+        }
+        
+        .section-title {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+        
+        footer {
+            background-color: var(--dark-color);
+            color: var(--light-color);
+            padding: 40px 0;
+        }
+        
+        .reservation-hero {
+            background: linear-gradient(rgba(139, 69, 19, 0.7), rgba(139, 69, 19, 0.7)), url('https://images.unsplash.com/photo-1514933651103-005eec06c04b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .reservation-form {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 50px;
+        }
+        
+        .form-group-custom {
+            margin-bottom: 25px;
+        }
+        
+        .form-label-custom {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 8px;
+        }
+        
+        .form-control-custom {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 12px 15px;
+            transition: all 0.3s;
+        }
+        
+        .form-control-custom:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.2rem rgba(210, 180, 140, 0.25);
+        }
+        
+        .table-time {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .time-slot {
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .time-slot:hover {
+            border-color: var(--secondary-color);
+            background-color: #f8f5f0;
+        }
+        
+        .time-slot.selected {
+            border-color: var(--primary-color);
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .time-slot.unavailable {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+            cursor: not-allowed;
+        }
+        
+        .table-type {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .table-type:hover {
+            border-color: var(--secondary-color);
+        }
+        
+        .table-type.selected {
+            border-color: var(--primary-color);
+            background-color: #f8f5f0;
+        }
+        
+        .table-icon {
+            font-size: 2em;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+        
+        .benefit-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .benefit-icon {
+            font-size: 2.5em;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+        }
+        
+        .confirmation-modal {
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        .confirmation-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .confirmation-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+        
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875em;
+            margin-top: 5px;
+        }
+        
+        .form-control.error {
+            border-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+            <div class="container">
+                <a class="navbar-brand" href="index.html">
+                    <i class="fas fa-coffee"></i> Street Coffee
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.html">Главная</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="menu.html">Меню</a>
+                        </li>
+                    
+                        <li class="nav-item">
+                            <a class="nav-link" href="promotions.html">Акции </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="order.html">Онлайн-заказ</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="reservation.html">Бронирование столика</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="contacts.html">Контакты</a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="account.html">
+                                <i class="fas fa-user"></i> Личный кабинет
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <section class="reservation-hero">
+            <div class="container">
+                <h1 class="display-4 fw-bold">Забронируйте столик</h1>
+                <p class="lead">Гарантируйте себе лучшее место в нашей кофейне</p>
+            </div>
+        </section>
+
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="reservation-form">
+                        <h2 class="section-title text-center">Бронирование столика</h2>
+                        
+                        <form @submit.prevent="submitForm">
+                            <!-- Дата и время -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group-custom">
+                                        <label class="form-label-custom">Дата *</label>
+                                        <input 
+                                            type="date" 
+                                            class="form-control form-control-custom" 
+                                            v-model="formData.date"
+                                            :class="{ 'error': errors.date }"
+                                            required
+                                            min="2023-01-01"
+                                        >
+                                        <div class="error-message" v-if="errors.date">{{ errors.date }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group-custom">
+                                        <label class="form-label-custom">Время *</label>
+                                        <div class="table-time">
+                                            <div 
+                                                v-for="time in timeSlots" 
+                                                :key="time.value"
+                                                class="time-slot"
+                                                :class="{
+                                                    'selected': formData.time === time.value,
+                                                    'unavailable': !time.available
+                                                }"
+                                                @click="selectTime(time)"
+                                            >
+                                                {{ time.display }}
+                                            </div>
+                                        </div>
+                                        <div class="error-message" v-if="errors.time">{{ errors.time }}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Количество гостей -->
+                            <div class="form-group-custom">
+                                <label class="form-label-custom">Количество гостей *</label>
+                                <select 
+                                    class="form-control form-control-custom" 
+                                    v-model="formData.guests"
+                                    :class="{ 'error': errors.guests }"
+                                    required
+                                >
+                                    <option value="">Выберите количество</option>
+                                    <option value="1">1 человек</option>
+                                    <option value="2">2 человека</option>
+                                    <option value="3">3 человека</option>
+                                    <option value="4">4 человека</option>
+                                    <option value="5">5 человек</option>
+                                    <option value="6">6 человек</option>
+                                </select>
+                                <div class="error-message" v-if="errors.guests">{{ errors.guests }}</div>
+                            </div>
+
+                            <!-- Тип столика -->
+                            <div class="form-group-custom">
+                                <label class="form-label-custom">Тип столика</label>
+                                <div class="row">
+                                    <div 
+                                        v-for="table in tableTypes" 
+                                        :key="table.id"
+                                        class="col-md-4"
+                                    >
+                                        <div 
+                                            class="table-type"
+                                            :class="{ 'selected': formData.tableType === table.id }"
+                                            @click="selectTableType(table.id)"
+                                        >
+                                            <div class="table-icon">
+                                                <i :class="table.icon"></i>
+                                            </div>
+                                            <h6>{{ table.name }}</h6>
+                                            <small>{{ table.description }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Контактная информация -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group-custom">
+                                        <label class="form-label-custom">Имя *</label>
+                                        <input 
+                                            type="text" 
+                                            class="form-control form-control-custom" 
+                                            placeholder="Ваше имя" 
+                                            v-model="formData.name"
+                                            :class="{ 'error': errors.name }"
+                                            required
+                                        >
+                                        <div class="error-message" v-if="errors.name">{{ errors.name }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group-custom">
+                                        <label class="form-label-custom">Телефон *</label>
+                                        <input 
+                                            type="tel" 
+                                            class="form-control form-control-custom" 
+                                            placeholder="+7 (999) 123-45-67" 
+                                            v-model="formData.phone"
+                                            :class="{ 'error': errors.phone }"
+                                            required
+                                        >
+                                        <div class="error-message" v-if="errors.phone">{{ errors.phone }}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Дополнительные пожелания -->
+                            <div class="form-group-custom">
+                                <label class="form-label-custom">Дополнительные пожелания</label>
+                                <textarea 
+                                    class="form-control form-control-custom" 
+                                    rows="4" 
+                                    placeholder="Особые пожелания, аллергии и т.д."
+                                    v-model="formData.notes"
+                                ></textarea>
+                            </div>
+
+                            <!-- Кнопка отправки -->
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary btn-lg px-5" :disabled="isSubmitting">
+                                    <span v-if="isSubmitting">
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                        Обработка...
+                                    </span>
+                                    <span v-else>Забронировать столик</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Преимущества бронирования -->
+            <div class="row">
+                <div class="col-12">
+                    <h2 class="section-title text-center">Почему стоит забронировать столик?</h2>
+                    <div class="benefits-grid">
+                        <div class="benefit-card">
+                            <div class="benefit-icon">
+                                <i class="fas fa-gift"></i>
+                            </div>
+                            <h5>Бонусный десерт</h5>
+                            <p>При бронировании столика онлайн получите десерт в подарок</p>
+                        </div>
+                        <div class="benefit-card">
+                            <div class="benefit-icon">
+                                <i class="fas fa-crown"></i>
+                            </div>
+                            <h5>Лучшие места</h5>
+                            <p>Мы сохраним для вас самые уютные места в кофейне</p>
+                        </div>
+                        <div class="benefit-card">
+                            <div class="benefit-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <h5>Экономия времени</h5>
+                            <p>Не нужно ждать освобождения столика</p>
+                        </div>
+                        <div class="benefit-card">
+                            <div class="benefit-icon">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            <h5>Напоминание</h5>
+                            <p>Мы напомним о бронировании за 2 часа</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h5><i class="fas fa-coffee"></i> Street Coffee</h5>
+                        <p>Лучший кофе в городе с доставкой на дом или навынос.</p>
+                        <div class="social-links">
+                            <a href="#" class="text-light me-3"><i class="fab fa-vk"></i></a>
+                            <a href="#" class="text-light me-3"><i class="fab fa-telegram"></i></a>
+                            <a href="#" class="text-light me-3"><i class="fab fa-instagram"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>Контакты</h5>
+                        <p><i class="fas fa-map-marker-alt"></i> ул. Примерная, 123</p>
+                        <p><i class="fas fa-phone"></i> +7 (999) 123-45-67</p>
+                        <p><i class="fas fa-envelope"></i> info@streetcoffee.ru</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>Часы работы</h5>
+                        <p>Пн-Пт: 8:00 - 22:00</p>
+                        <p>Сб-Вс: 9:00 - 23:00</p>
+                        <a href="contacts.html" class="btn btn-outline-light">Как добраться</a>
+                    </div>
+                </div>
+                <hr class="my-4">
+                <div class="text-center">
+                    <p>&copy; 2023 Street Coffee. Все права защищены.</p>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Модальное окно подтверждения -->
+        <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content confirmation-modal">
+                    <div class="confirmation-header">
+                        <div class="confirmation-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h3 class="modal-title" id="confirmationModalLabel">Бронирование подтверждено!</h3>
+                    </div>
+                    <div class="modal-body p-4">
+                        <p>Спасибо, <strong>{{ formData.name }}</strong>! Ваш столик успешно забронирован.</p>
+                        <div class="reservation-details">
+                            <p><strong>Дата:</strong> {{ formatDate(formData.date) }}</p>
+                            <p><strong>Время:</strong> {{ getTimeDisplay(formData.time) }}</p>
+                            <p><strong>Количество гостей:</strong> {{ formData.guests }} человек</p>
+                            <p><strong>Тип столика:</strong> {{ getTableTypeName(formData.tableType) }}</p>
+                        </div>
+                        <p class="mt-3">Мы отправили подтверждение на номер <strong>{{ formData.phone }}</strong>.</p>
+                        <div class="alert alert-info mt-3" role="alert">
+                            <i class="fas fa-gift me-2"></i> При бронировании онлайн вы получите десерт в подарок!
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Отлично!</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        const { createApp } = Vue;
+        
+        createApp({
+            data() {
+                return {
+                    formData: {
+                        date: '',
+                        time: '',
+                        guests: '',
+                        tableType: 'corner',
+                        name: '',
+                        phone: '',
+                        notes: ''
+                    },
+                    errors: {
+                        date: '',
+                        time: '',
+                        guests: '',
+                        name: '',
+                        phone: ''
+                    },
+                    isSubmitting: false,
+                    timeSlots: [
+                        { value: '18:00', display: '18:00', available: true },
+                        { value: '18:30', display: '18:30', available: true },
+                        { value: '19:00', display: '19:00', available: true },
+                        { value: '19:30', display: '19:30', available: true },
+                        { value: '20:00', display: '20:00', available: true },
+                        { value: '20:30', display: '20:30', available: true },
+                        { value: '21:00', display: '21:00', available: false },
+                        { value: '21:30', display: '21:30', available: true }
+                    ],
+                    tableTypes: [
+                        { id: 'standard', name: 'Стандартный', description: 'До 4 человек', icon: 'fas fa-user-friends' },
+                        { id: 'corner', name: 'Угловой', description: 'Мягкие кресла', icon: 'fas fa-couch' },
+                        { id: 'large', name: 'Большой', description: 'Для компаний', icon: 'fas fa-users' }
+                    ]
+                }
+            },
+            methods: {
+                selectTime(time) {
+                    if (time.available) {
+                        this.formData.time = time.value;
+                        this.errors.time = '';
+                    }
+                },
+                selectTableType(type) {
+                    this.formData.tableType = type;
+                },
+                validateForm() {
+                    let isValid = true;
+                    
+                    // Очистка предыдущих ошибок
+                    this.errors = {
+                        date: '',
+                        time: '',
+                        guests: '',
+                        name: '',
+                        phone: ''
+                    };
+                    
+                    // Проверка даты
+                    if (!this.formData.date) {
+                        this.errors.date = 'Пожалуйста, выберите дату';
+                        isValid = false;
+                    } else {
+                        const selectedDate = new Date(this.formData.date);
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        
+                        if (selectedDate < today) {
+                            this.errors.date = 'Нельзя выбрать прошедшую дату';
+                            isValid = false;
+                        }
+                    }
+                    
+                    // Проверка времени
+                    if (!this.formData.time) {
+                        this.errors.time = 'Пожалуйста, выберите время';
+                        isValid = false;
+                    }
+                    
+                    // Проверка количества гостей
+                    if (!this.formData.guests) {
+                        this.errors.guests = 'Пожалуйста, выберите количество гостей';
+                        isValid = false;
+                    }
+                    
+                    // Проверка имени
+                    if (!this.formData.name) {
+                        this.errors.name = 'Пожалуйста, введите ваше имя';
+                        isValid = false;
+                    } else if (this.formData.name.length < 2) {
+                        this.errors.name = 'Имя должно содержать не менее 2 символов';
+                        isValid = false;
+                    }
+                    
+                    // Проверка телефона
+                    if (!this.formData.phone) {
+                        this.errors.phone = 'Пожалуйста, введите ваш телефон';
+                        isValid = false;
+                    } else if (!this.validatePhone(this.formData.phone)) {
+                        this.errors.phone = 'Пожалуйста, введите корректный номер телефона';
+                        isValid = false;
+                    }
+                    
+                    return isValid;
+                },
+                validatePhone(phone) {
+                    // Простая валидация российского номера телефона
+                    const phoneRegex = /^(\+7|7|8)?[\s\-]?\(?[489][0-9]{2}\)?[\s\-]?[0-9]{3}[\s\-]?[0-9]{2}[\s\-]?[0-9]{2}$/;
+                    return phoneRegex.test(phone.replace(/\s/g, ''));
+                },
+                async submitForm() {
+                    if (!this.validateForm()) {
+                        return;
+                    }
+                    
+                    this.isSubmitting = true;
+                    
+                    // Имитация отправки данных на сервер
+                    try {
+                        await new Promise(resolve => setTimeout(resolve, 1500));
+                        
+                        // Показ модального окна подтверждения
+                        const modal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+                        modal.show();
+                        
+                        // Сброс формы после успешной отправки
+                        this.resetForm();
+                    } catch (error) {
+                        console.error('Ошибка при отправке формы:', error);
+                        alert('Произошла ошибка при отправке формы. Пожалуйста, попробуйте еще раз.');
+                    } finally {
+                        this.isSubmitting = false;
+                    }
+                },
+                resetForm() {
+                    this.formData = {
+                        date: '',
+                        time: '',
+                        guests: '',
+                        tableType: 'corner',
+                        name: '',
+                        phone: '',
+                        notes: ''
+                    };
+                },
+                formatDate(dateString) {
+                    if (!dateString) return '';
+                    
+                    const date = new Date(dateString);
+                    const options = { day: 'numeric', month: 'long', year: 'numeric' };
+                    return date.toLocaleDateString('ru-RU', options);
+                },
+                getTimeDisplay(timeValue) {
+                    const timeSlot = this.timeSlots.find(slot => slot.value === timeValue);
+                    return timeSlot ? timeSlot.display : '';
+                },
+                getTableTypeName(tableTypeId) {
+                    const tableType = this.tableTypes.find(type => type.id === tableTypeId);
+                    return tableType ? tableType.name : '';
+                }
+            },
+            mounted() {
+                // Установка минимальной даты (сегодня)
+                const today = new Date();
+                const minDate = today.toISOString().split('T')[0];
+                document.querySelector('input[type="date"]').min = minDate;
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Street Coffee - Онлайн-заказ</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #8B4513;
+            --secondary-color: #D2B48C;
+            --accent-color: #A0522D;
+            --light-color: #F5F5DC;
+            --dark-color: #3E2723;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+        }
+        
+        .navbar {
+            background-color: var(--primary-color);
+        }
+        
+        .navbar-brand, .nav-link {
+            color: var(--light-color) !important;
+        }
+        
+        .nav-link:hover {
+            color: var(--secondary-color) !important;
+        }
+        
+        .section-title {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+        
+        footer {
+            background-color: var(--dark-color);
+            color: var(--light-color);
+            padding: 40px 0;
+        }
+        
+        .order-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        .step-indicator::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #ddd;
+            z-index: 1;
+        }
+        
+        .step {
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            flex: 1;
+        }
+        
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #ddd;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: bold;
+        }
+        
+        .step.active .step-number {
+            background: var(--primary-color);
+        }
+        
+        .step.completed .step-number {
+            background: var(--accent-color);
+        }
+        
+        .menu-category-order {
+            margin-bottom: 30px;
+        }
+        
+        .category-title-order {
+            color: var(--accent-color);
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.3s;
+            position: relative;
+        }
+        
+        .order-item:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .item-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .quantity-btn {
+            width: 35px;
+            height: 35px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .quantity-btn:hover {
+            background: var(--secondary-color);
+            color: white;
+        }
+        
+        .quantity-input {
+            width: 50px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 5px;
+        }
+        
+        .delivery-option {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .delivery-option:hover {
+            border-color: var(--secondary-color);
+        }
+        
+        .delivery-option.selected {
+            border-color: var(--primary-color);
+            background-color: #f8f5f0;
+        }
+        
+        .order-summary {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            position: sticky;
+            top: 20px;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .summary-total {
+            border-top: 2px solid #ddd;
+            padding-top: 15px;
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .form-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+        
+        .step-content {
+            min-height: 400px;
+        }
+        
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .payment-method {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .payment-method:hover {
+            border-color: var(--secondary-color);
+        }
+        
+        .payment-method.selected {
+            border-color: var(--primary-color);
+            background-color: #f8f5f0;
+        }
+        
+        .confirmation-success {
+            text-align: center;
+            padding: 40px 0;
+        }
+        
+        .confirmation-success i {
+            font-size: 4em;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+        }
+
+        /* Новые стили для акций */
+        .promotions-section {
+            background: #fff9e6;
+            border: 2px dashed var(--accent-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .promotion-badge {
+            background: var(--accent-color);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.7em;
+            margin-left: 8px;
+        }
+
+        .promotion-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .promotion-item:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .promotion-item.selected {
+            border-color: var(--primary-color);
+            background-color: #f8f5f0;
+            box-shadow: 0 2px 8px rgba(139, 69, 19, 0.2);
+        }
+
+        .promotion-details {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .discount-badge {
+            background: #dc3545;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .original-price {
+            text-decoration: line-through;
+            color: #999;
+            margin-right: 8px;
+        }
+
+        .discounted-price {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .promotion-applied {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        .savings-info {
+            color: #28a745;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        .time-left {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-coffee"></i> Street Coffee
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Главная</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="menu.html">Меню</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="promotions.html">Акции</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="order.html">Онлайн-заказ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="reservation.html">Бронирование столика</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="contacts.html">Контакты</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="account.html">
+                            <i class="fas fa-user"></i> Личный кабинет
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5" id="app">
+        <h1 class="section-title text-center">Онлайн-заказ</h1>
+        
+        <div class="order-container">
+            <!-- Индикатор шагов -->
+            <div class="step-indicator">
+                <div class="step" :class="{ active: currentStep === 1, completed: currentStep > 1 }">
+                    <div class="step-number">1</div>
+                    <div>Меню</div>
+                </div>
+                <div class="step" :class="{ active: currentStep === 2, completed: currentStep > 2 }">
+                    <div class="step-number">2</div>
+                    <div>Доставка</div>
+                </div>
+                <div class="step" :class="{ active: currentStep === 3, completed: currentStep > 3 }">
+                    <div class="step-number">3</div>
+                    <div>Оплата</div>
+                </div>
+                <div class="step" :class="{ active: currentStep === 4 }">
+                    <div class="step-number">4</div>
+                    <div>Подтверждение</div>
+                </div>
+            </div>
+
+            <div class="step-content">
+                <!-- Шаг 1: Меню -->
+                <div v-if="currentStep === 1" class="row">
+                    <div class="col-lg-8">
+                        <!-- Секция активных акций -->
+                        <div class="promotions-section" v-if="activePromotions.length > 0">
+                            <h4 class="mb-3">
+                                <i class="fas fa-percent me-2"></i>Действующие акции
+                                <span class="badge bg-primary">{{ activePromotions.length }}</span>
+                            </h4>
+                            <p class="text-muted mb-3">Выберите подходящие акции для применения к заказу:</p>
+                            
+                            <div class="promotion-item" 
+                                 v-for="promotion in activePromotions" 
+                                 :key="promotion.id"
+                                 :class="{ selected: selectedPromotions.includes(promotion.id) }"
+                                 @click="togglePromotion(promotion)">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">
+                                            {{ promotion.title }}
+                                            <span class="discount-badge" v-if="promotion.discount">-{{ promotion.discount }}%</span>
+                                        </h6>
+                                        <div class="promotion-details">{{ promotion.description }}</div>
+                                        <div class="time-left" v-if="promotion.timeLeft > 0">
+                                            <i class="far fa-clock me-1"></i>
+                                            До конца: {{ formatTime(promotion.timeLeft) }}
+                                        </div>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" 
+                                               type="checkbox" 
+                                               :checked="selectedPromotions.includes(promotion.id)"
+                                               @change="togglePromotion(promotion)">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="menu-category-order">
+                            <h3 class="category-title-order">
+                                <i class="fas fa-coffee me-2"></i>Кофе
+                            </h3>
+                            
+                            <div class="order-item" v-for="item in coffeeItems" :key="item.id">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">{{ item.name }}</h6>
+                                    <small class="text-muted">{{ item.description }}</small>
+                                    <div class="mt-1">
+                                        <span class="original-price" v-if="getDiscountedPrice(item) < item.price">
+                                            {{ item.price }} ₽
+                                        </span>
+                                        <span :class="{ 'text-primary fw-bold': getDiscountedPrice(item) === item.price, 'discounted-price': getDiscountedPrice(item) < item.price }">
+                                            {{ getDiscountedPrice(item) }} ₽
+                                        </span>
+                                        <span class="promotion-badge" v-if="getDiscountedPrice(item) < item.price">
+                                            Экономия {{ item.price - getDiscountedPrice(item) }} ₽
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="item-controls">
+                                    <button class="quantity-btn" @click="decreaseQuantity(item)">-</button>
+                                    <input type="text" class="quantity-input" :value="getItemQuantity(item.id)" readonly>
+                                    <button class="quantity-btn" @click="increaseQuantity(item)">+</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="menu-category-order">
+                            <h3 class="category-title-order">
+                                <i class="fas fa-cookie me-2"></i>Десерты
+                            </h3>
+                            
+                            <div class="order-item" v-for="item in dessertItems" :key="item.id">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">{{ item.name }}</h6>
+                                    <small class="text-muted">{{ item.description }}</small>
+                                    <div class="mt-1">
+                                        <span class="original-price" v-if="getDiscountedPrice(item) < item.price">
+                                            {{ item.price }} ₽
+                                        </span>
+                                        <span :class="{ 'text-primary fw-bold': getDiscountedPrice(item) === item.price, 'discounted-price': getDiscountedPrice(item) < item.price }">
+                                            {{ getDiscountedPrice(item) }} ₽
+                                        </span>
+                                        <span class="promotion-badge" v-if="getDiscountedPrice(item) < item.price">
+                                            Экономия {{ item.price - getDiscountedPrice(item) }} ₽
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="item-controls">
+                                    <button class="quantity-btn" @click="decreaseQuantity(item)">-</button>
+                                    <input type="text" class="quantity-input" :value="getItemQuantity(item.id)" readonly>
+                                    <button class="quantity-btn" @click="increaseQuantity(item)">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Корзина -->
+                    <div class="col-lg-4">
+                        <div class="order-summary">
+                            <h4 class="mb-4">Ваш заказ</h4>
+                            
+                            <div class="summary-items mb-3">
+                                <div v-if="cart.length === 0" class="text-muted text-center py-3">
+                                    <i class="fas fa-shopping-cart fa-2x mb-2"></i>
+                                    <p>Корзина пуста</p>
+                                </div>
+                                <div v-else>
+                                    <div class="cart-item" v-for="item in cart" :key="item.id">
+                                        <div>
+                                            <div class="fw-bold">{{ item.name }}</div>
+                                            <small class="text-muted">
+                                                {{ item.quantity }} × 
+                                                <span v-if="item.originalPrice > item.price">
+                                                    <span class="original-price">{{ item.originalPrice }} ₽</span>
+                                                    {{ item.price }} ₽
+                                                </span>
+                                                <span v-else>{{ item.price }} ₽</span>
+                                            </small>
+                                        </div>
+                                        <div class="fw-bold">{{ (item.price * item.quantity) }} ₽</div>
+                                    </div>
+
+                                    <!-- Примененные акции -->
+                                    <div v-if="appliedPromotions.length > 0" class="mt-3">
+                                        <div class="promotion-applied" v-for="promotion in appliedPromotions" :key="promotion.id">
+                                            <small class="fw-bold">{{ promotion.title }}</small>
+                                            <div class="savings-info">
+                                                <i class="fas fa-piggy-bank me-1"></i>
+                                                Экономия: {{ calculatePromotionSavings(promotion) }} ₽
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="summary-item">
+                                <span>Сумма:</span>
+                                <span>{{ subtotal }} ₽</span>
+                            </div>
+                            <div class="summary-item" v-if="totalDiscount > 0">
+                                <span>Скидка:</span>
+                                <span class="text-success">-{{ totalDiscount }} ₽</span>
+                            </div>
+                            <div class="summary-item">
+                                <span>Доставка:</span>
+                                <span>{{ deliveryCost }} ₽</span>
+                            </div>
+                            <div class="summary-item summary-total">
+                                <span>Итого:</span>
+                                <span>{{ total }} ₽</span>
+                            </div>
+
+                            <div class="savings-info text-center mt-2" v-if="totalDiscount > 0">
+                                <i class="fas fa-trophy me-1"></i>
+                                Вы экономите {{ totalDiscount }} ₽!
+                            </div>
+
+                            <button class="btn btn-primary w-100 mt-3" @click="nextStep" :disabled="cart.length === 0">
+                                Продолжить
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Шаг 2: Доставка -->
+                <div v-if="currentStep === 2" class="row">
+                    <div class="col-lg-8">
+                        <div class="form-section">
+                            <h4 class="mb-4">Способ получения</h4>
+                            <div class="delivery-option" 
+                                 :class="{ selected: deliveryOption === 'delivery' }"
+                                 @click="deliveryOption = 'delivery'">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" v-model="deliveryOption" value="delivery" id="delivery">
+                                    <label class="form-check-label fw-bold" for="delivery">
+                                        Доставка
+                                    </label>
+                                </div>
+                                <p class="mb-0 mt-2">Доставим ваш заказ по указанному адресу</p>
+                                <small class="text-muted">Стоимость доставки: 150 ₽</small>
+                            </div>
+                            
+                            <div class="delivery-option" 
+                                 :class="{ selected: deliveryOption === 'pickup' }"
+                                 @click="deliveryOption = 'pickup'">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" v-model="deliveryOption" value="pickup" id="pickup">
+                                    <label class="form-check-label fw-bold" for="pickup">
+                                        Самовывоз
+                                    </label>
+                                </div>
+                                <p class="mb-0 mt-2">Заберите заказ в нашей кофейне</p>
+                                <small class="text-muted">Бесплатно</small>
+                            </div>
+                        </div>
+
+                        <div class="form-section" v-if="deliveryOption === 'delivery'">
+                            <h4 class="mb-4">Адрес доставки</h4>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Улица</label>
+                                    <input type="text" class="form-control" v-model="deliveryAddress.street" placeholder="ул. Примерная">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label">Дом</label>
+                                    <input type="text" class="form-control" v-model="deliveryAddress.house" placeholder="123">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label">Квартира</label>
+                                    <input type="text" class="form-control" v-model="deliveryAddress.apartment" placeholder="45">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h4 class="mb-4">Контактная информация</h4>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Имя</label>
+                                    <input type="text" class="form-control" v-model="contactInfo.name" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Телефон</label>
+                                    <input type="tel" class="form-control" v-model="contactInfo.phone" placeholder="+7 (999) 123-45-67" required>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label class="form-label">Комментарий к заказу</label>
+                                    <textarea class="form-control" v-model="contactInfo.comment" rows="3" placeholder="Особые пожелания..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="order-summary">
+                            <h4 class="mb-4">Ваш заказ</h4>
+                            <div class="summary-items mb-3">
+                                <div class="cart-item" v-for="item in cart" :key="item.id">
+                                    <div>
+                                        <div class="fw-bold">{{ item.name }}</div>
+                                        <small class="text-muted">
+                                            {{ item.quantity }} × 
+                                            <span v-if="item.originalPrice > item.price">
+                                                <span class="original-price">{{ item.originalPrice }} ₽</span>
+                                                {{ item.price }} ₽
+                                            </span>
+                                            <span v-else>{{ item.price }} ₽</span>
+                                        </small>
+                                    </div>
+                                    <div class="fw-bold">{{ (item.price * item.quantity) }} ₽</div>
+                                </div>
+
+                                <!-- Примененные акции -->
+                                <div v-if="appliedPromotions.length > 0" class="mt-3">
+                                    <div class="promotion-applied" v-for="promotion in appliedPromotions" :key="promotion.id">
+                                        <small class="fw-bold">{{ promotion.title }}</small>
+                                        <div class="savings-info">
+                                            <i class="fas fa-piggy-bank me-1"></i>
+                                            Экономия: {{ calculatePromotionSavings(promotion) }} ₽
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="summary-item">
+                                <span>Сумма:</span>
+                                <span>{{ subtotal }} ₽</span>
+                            </div>
+                            <div class="summary-item" v-if="totalDiscount > 0">
+                                <span>Скидка:</span>
+                                <span class="text-success">-{{ totalDiscount }} ₽</span>
+                            </div>
+                            <div class="summary-item">
+                                <span>Доставка:</span>
+                                <span>{{ deliveryCost }} ₽</span>
+                            </div>
+                            <div class="summary-item summary-total">
+                                <span>Итого:</span>
+                                <span>{{ total }} ₽</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 mt-4">
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-secondary" @click="prevStep">Назад</button>
+                            <button class="btn btn-primary" @click="nextStep" :disabled="!isDeliveryStepValid">
+                                Продолжить
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Шаг 3: Оплата -->
+                <div v-if="currentStep === 3" class="row">
+                    <div class="col-lg-8">
+                        <div class="form-section">
+                            <h4 class="mb-4">Способ оплаты</h4>
+                            <div class="payment-method" 
+                                 :class="{ selected: paymentMethod === 'card' }"
+                                 @click="paymentMethod = 'card'">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" v-model="paymentMethod" value="card" id="card">
+                                    <label class="form-check-label fw-bold" for="card">
+                                        Банковская карта
+                                    </label>
+                                </div>
+                                <p class="mb-0 mt-2">Оплата онлайн банковской картой</p>
+                            </div>
+                            
+                            <div class="payment-method" 
+                                 :class="{ selected: paymentMethod === 'cash' }"
+                                 @click="paymentMethod = 'cash'">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" v-model="paymentMethod" value="cash" id="cash">
+                                    <label class="form-check-label fw-bold" for="cash">
+                                        Наличными
+                                    </label>
+                                </div>
+                                <p class="mb-0 mt-2">Оплата наличными при получении</p>
+                            </div>
+                        </div>
+
+                        <div class="form-section" v-if="paymentMethod === 'card'">
+                            <h4 class="mb-4">Данные карты</h4>
+                            <div class="row">
+                                <div class="col-12 mb-3">
+                                    <label class="form-label">Номер карты</label>
+                                    <input type="text" class="form-control" v-model="cardInfo.number" placeholder="1234 5678 9012 3456">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Срок действия</label>
+                                    <input type="text" class="form-control" v-model="cardInfo.expiry" placeholder="ММ/ГГ">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">CVV</label>
+                                    <input type="text" class="form-control" v-model="cardInfo.cvv" placeholder="123">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="order-summary">
+                            <h4 class="mb-4">Ваш заказ</h4>
+                            <div class="summary-items mb-3">
+                                <div class="cart-item" v-for="item in cart" :key="item.id">
+                                    <div>
+                                        <div class="fw-bold">{{ item.name }}</div>
+                                        <small class="text-muted">
+                                            {{ item.quantity }} × 
+                                            <span v-if="item.originalPrice > item.price">
+                                                <span class="original-price">{{ item.originalPrice }} ₽</span>
+                                                {{ item.price }} ₽
+                                            </span>
+                                            <span v-else>{{ item.price }} ₽</span>
+                                        </small>
+                                    </div>
+                                    <div class="fw-bold">{{ (item.price * item.quantity) }} ₽</div>
+                                </div>
+
+                                <!-- Примененные акции -->
+                                <div v-if="appliedPromotions.length > 0" class="mt-3">
+                                    <div class="promotion-applied" v-for="promotion in appliedPromotions" :key="promotion.id">
+                                        <small class="fw-bold">{{ promotion.title }}</small>
+                                        <div class="savings-info">
+                                            <i class="fas fa-piggy-bank me-1"></i>
+                                            Экономия: {{ calculatePromotionSavings(promotion) }} ₽
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="summary-item">
+                                <span>Сумма:</span>
+                                <span>{{ subtotal }} ₽</span>
+                            </div>
+                            <div class="summary-item" v-if="totalDiscount > 0">
+                                <span>Скидка:</span>
+                                <span class="text-success">-{{ totalDiscount }} ₽</span>
+                            </div>
+                            <div class="summary-item">
+                                <span>Доставка:</span>
+                                <span>{{ deliveryCost }} ₽</span>
+                            </div>
+                            <div class="summary-item summary-total">
+                                <span>Итого:</span>
+                                <span>{{ total }} ₽</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 mt-4">
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-secondary" @click="prevStep">Назад</button>
+                            <button class="btn btn-primary" @click="nextStep" :disabled="!isPaymentStepValid">
+                                Оплатить {{ total }} ₽
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Шаг 4: Подтверждение -->
+                <div v-if="currentStep === 4" class="confirmation-success">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Заказ успешно оформлен!</h3>
+                    <p class="lead">Номер вашего заказа: <strong>#{{ orderNumber }}</strong></p>
+                    
+                    <!-- Информация о примененных акциях -->
+                    <div v-if="appliedPromotions.length > 0" class="mt-4">
+                        <h5>Примененные акции:</h5>
+                        <div class="row justify-content-center">
+                            <div class="col-md-6">
+                                <div class="promotion-applied text-start" v-for="promotion in appliedPromotions" :key="promotion.id">
+                                    <strong>{{ promotion.title }}</strong>
+                                    <div class="savings-info">Экономия: {{ calculatePromotionSavings(promotion) }} ₽</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert alert-success mt-3">
+                            <i class="fas fa-trophy me-2"></i>
+                            <strong>Общая экономия: {{ totalDiscount }} ₽</strong>
+                        </div>
+                    </div>
+                    
+                    <p>Мы свяжемся с вами в ближайшее время для подтверждения заказа.</p>
+                    <div class="mt-4">
+                        <button class="btn btn-primary me-3" @click="newOrder">Сделать новый заказ</button>
+                        <a href="index.html" class="btn btn-outline-primary">На главную</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5><i class="fas fa-coffee"></i> Street Coffee</h5>
+                    <p>Лучший кофе в городе с доставкой на дом или навынос.</p>
+                    <div class="social-links">
+                        <a href="#" class="text-light me-3"><i class="fab fa-vk"></i></a>
+                        <a href="#" class="text-light me-3"><i class="fab fa-telegram"></i></a>
+                        <a href="#" class="text-light me-3"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <h5>Контакты</h5>
+                    <p><i class="fas fa-map-marker-alt"></i> ул. Примерная, 123</p>
+                    <p><i class="fas fa-phone"></i> +7 (999) 123-45-67</p>
+                    <p><i class="fas fa-envelope"></i> info@streetcoffee.ru</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Часы работы</h5>
+                    <p>Пн-Пт: 8:00 - 22:00</p>
+                    <p>Сб-Вс: 9:00 - 23:00</p>
+                    <a href="contacts.html" class="btn btn-outline-light">Как добраться</a>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="text-center">
+                <p>&copy; 2023 Street Coffee. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        const { createApp } = Vue;
+        
+        createApp({
+            data() {
+                return {
+                    currentStep: 1,
+                    cart: [],
+                    selectedPromotions: [],
+                    coffeeItems: [
+                        { id: 1, name: 'Эспрессо', description: 'Классический крепкий кофе', price: 180 },
+                        { id: 2, name: 'Капучино', description: 'Эспрессо с молочной пенкой', price: 280 },
+                        { id: 3, name: 'Латте', description: 'Нежный кофе с молоком', price: 250 },
+                        { id: 4, name: 'Американо', description: 'Эспрессо с горячей водой', price: 200 }
+                    ],
+                    dessertItems: [
+                        { id: 5, name: 'Тирамису', description: 'Итальянский десерт с кофе', price: 350 },
+                        { id: 6, name: 'Чизкейк Нью-Йорк', description: 'Классический чизкейк', price: 320 },
+                        { id: 7, name: 'Круассан с шоколадом', description: 'Свежий круассан', price: 180 }
+                    ],
+                    // Акции из файла "Акции"
+                    promotions: [
+                        {
+                            id: 1,
+                            title: 'Утренняя скидка 20%',
+                            description: 'Скидка 20% на все напитки с 8:00 до 10:00',
+                            discount: 20,
+                            type: 'time_based',
+                            timeStart: '08:00',
+                            timeEnd: '10:00',
+                            applicableItems: [1, 2, 3, 4], // ID кофейных напитков
+                            endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+                            timeLeft: 30 * 24 * 60 * 60 // 30 дней в секундах
+                        },
+                        {
+                            id: 2,
+                            title: 'Кофе + десерт = выгода',
+                            description: 'При заказе любого кофе и десерта получите второй десерт в подарок!',
+                            type: 'combo',
+                            buyItems: [1, 2, 3, 4], // Любой кофе
+                            getItems: [5, 6, 7], // Любой десерт
+                            getDiscount: 100, // 100% скидка на второй десерт
+                            endDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+                            timeLeft: 14 * 24 * 60 * 60
+                        },
+                        {
+                            id: 3,
+                            title: 'Осенний латте со скидкой',
+                            description: 'Осенний латте с сиропом тыквы всего за 250 ₽ вместо 300 ₽',
+                            discount: 50,
+                            type: 'specific_item',
+                            applicableItems: [3], // Только латте
+                            originalPrice: 300,
+                            discountedPrice: 250,
+                            endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+                            timeLeft: 7 * 24 * 60 * 60
+                        },
+                        {
+                            id: 4,
+                            title: 'Бесплатная доставка',
+                            description: 'При заказе от 1000 ₽ доставка бесплатно',
+                            type: 'free_delivery',
+                            minOrderAmount: 1000,
+                            endDate: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000).toISOString(),
+                            timeLeft: 45 * 24 * 60 * 60
+                        }
+                    ],
+                    deliveryOption: 'delivery',
+                    deliveryAddress: {
+                        street: '',
+                        house: '',
+                        apartment: ''
+                    },
+                    contactInfo: {
+                        name: '',
+                        phone: '',
+                        comment: ''
+                    },
+                    paymentMethod: 'card',
+                    cardInfo: {
+                        number: '',
+                        expiry: '',
+                        cvv: ''
+                    },
+                    orderNumber: Math.floor(Math.random() * 10000) + 1000
+                }
+            },
+            computed: {
+                // Активные акции (не истекшие)
+                activePromotions() {
+                    const now = new Date();
+                    return this.promotions.filter(promo => {
+                        return new Date(promo.endDate) > now && promo.timeLeft > 0;
+                    });
+                },
+                // Примененные акции
+                appliedPromotions() {
+                    return this.activePromotions.filter(promo => 
+                        this.selectedPromotions.includes(promo.id)
+                    );
+                },
+                // Базовая сумма без скидок
+                baseSubtotal() {
+                    return this.cart.reduce((total, item) => total + (item.originalPrice * item.quantity), 0);
+                },
+                // Сумма со скидками
+                subtotal() {
+                    return this.cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+                },
+                // Общая скидка
+                totalDiscount() {
+                    return this.baseSubtotal - this.subtotal;
+                },
+                deliveryCost() {
+                    // Проверяем акцию на бесплатную доставку
+                    const freeDeliveryPromo = this.appliedPromotions.find(promo => 
+                        promo.type === 'free_delivery' && this.subtotal >= promo.minOrderAmount
+                    );
+                    
+                    if (freeDeliveryPromo && this.deliveryOption === 'delivery') {
+                        return 0;
+                    }
+                    
+                    return this.deliveryOption === 'delivery' ? 150 : 0;
+                },
+                total() {
+                    return this.subtotal + this.deliveryCost;
+                },
+                isDeliveryStepValid() {
+                    if (!this.contactInfo.name || !this.contactInfo.phone) return false;
+                    if (this.deliveryOption === 'delivery') {
+                        return this.deliveryAddress.street && this.deliveryAddress.house;
+                    }
+                    return true;
+                },
+                isPaymentStepValid() {
+                    if (this.paymentMethod === 'card') {
+                        return this.cardInfo.number && this.cardInfo.expiry && this.cardInfo.cvv;
+                    }
+                    return true;
+                }
+            },
+            methods: {
+                getItemQuantity(itemId) {
+                    const item = this.cart.find(item => item.id === itemId);
+                    return item ? item.quantity : 0;
+                },
+                getDiscountedPrice(item) {
+                    // Применяем все активные акции к товару
+                    let finalPrice = item.price;
+                    
+                    this.appliedPromotions.forEach(promotion => {
+                        if (promotion.type === 'specific_item' && promotion.applicableItems.includes(item.id)) {
+                            finalPrice = promotion.discountedPrice;
+                        } else if (promotion.type === 'time_based' && promotion.applicableItems.includes(item.id)) {
+                            // Проверяем текущее время для временных акций
+                            const now = new Date();
+                            const currentTime = now.getHours() + ':' + now.getMinutes();
+                            if (currentTime >= promotion.timeStart && currentTime <= promotion.timeEnd) {
+                                finalPrice = item.price * (1 - promotion.discount / 100);
+                            }
+                        }
+                    });
+                    
+                    return Math.round(finalPrice);
+                },
+                increaseQuantity(item) {
+                    const existingItem = this.cart.find(cartItem => cartItem.id === item.id);
+                    if (existingItem) {
+                        existingItem.quantity++;
+                        // Пересчитываем цену с учетом акций
+                        existingItem.price = this.getDiscountedPrice(item);
+                    } else {
+                        this.cart.push({
+                            ...item,
+                            originalPrice: item.price,
+                            price: this.getDiscountedPrice(item),
+                            quantity: 1
+                        });
+                    }
+                    this.applyComboPromotions();
+                },
+                decreaseQuantity(item) {
+                    const existingItem = this.cart.find(cartItem => cartItem.id === item.id);
+                    if (existingItem) {
+                        if (existingItem.quantity > 1) {
+                            existingItem.quantity--;
+                        } else {
+                            this.cart = this.cart.filter(cartItem => cartItem.id !== item.id);
+                        }
+                    }
+                    this.applyComboPromotions();
+                },
+                togglePromotion(promotion) {
+                    const index = this.selectedPromotions.indexOf(promotion.id);
+                    if (index > -1) {
+                        this.selectedPromotions.splice(index, 1);
+                    } else {
+                        this.selectedPromotions.push(promotion.id);
+                    }
+                    // Пересчитываем цены при изменении акций
+                    this.recalculatePrices();
+                },
+                recalculatePrices() {
+                    this.cart.forEach(item => {
+                        item.price = this.getDiscountedPrice({...item, price: item.originalPrice});
+                    });
+                    this.applyComboPromotions();
+                },
+                applyComboPromotions() {
+                    // Применяем комбо-акции (например, кофе + десерт)
+                    this.appliedPromotions.forEach(promotion => {
+                        if (promotion.type === 'combo') {
+                            const coffeeInCart = this.cart.some(item => 
+                                promotion.buyItems.includes(item.id)
+                            );
+                            const dessertsInCart = this.cart.filter(item => 
+                                promotion.getItems.includes(item.id)
+                            );
+                            
+                            if (coffeeInCart && dessertsInCart.length > 0) {
+                                // Применяем скидку на самый дешевый десерт
+                                const cheapestDessert = dessertsInCart.reduce((cheapest, current) => 
+                                    current.price < cheapest.price ? current : cheapest
+                                );
+                                
+                                if (cheapestDessert.quantity > 0) {
+                                    // Устанавливаем специальную цену для акционного десерта
+                                    const discountPrice = cheapestDessert.originalPrice * (1 - promotion.getDiscount / 100);
+                                    cheapestDessert.price = Math.round(discountPrice);
+                                }
+                            }
+                        }
+                    });
+                },
+                calculatePromotionSavings(promotion) {
+                    let savings = 0;
+                    
+                    if (promotion.type === 'specific_item') {
+                        this.cart.forEach(item => {
+                            if (promotion.applicableItems.includes(item.id)) {
+                                savings += (item.originalPrice - item.price) * item.quantity;
+                            }
+                        });
+                    } else if (promotion.type === 'time_based') {
+                        this.cart.forEach(item => {
+                            if (promotion.applicableItems.includes(item.id)) {
+                                const discountedPrice = item.originalPrice * (1 - promotion.discount / 100);
+                                savings += (item.originalPrice - discountedPrice) * item.quantity;
+                            }
+                        });
+                    } else if (promotion.type === 'combo') {
+                        // Расчет экономии от комбо-акции
+                        const dessertsInCart = this.cart.filter(item => 
+                            promotion.getItems.includes(item.id)
+                        );
+                        if (dessertsInCart.length > 0) {
+                            const cheapestDessert = dessertsInCart.reduce((cheapest, current) => 
+                                current.originalPrice < cheapest.originalPrice ? current : cheapest
+                            );
+                            savings += (cheapestDessert.originalPrice - cheapestDessert.price) * cheapestDessert.quantity;
+                        }
+                    } else if (promotion.type === 'free_delivery' && this.deliveryOption === 'delivery') {
+                        savings = 150; // Стоимость доставки
+                    }
+                    
+                    return Math.round(savings);
+                },
+                formatTime(seconds) {
+                    if (!seconds || seconds <= 0) return '00:00:00:00';
+                    
+                    const days = Math.floor(seconds / (3600 * 24));
+                    const hours = Math.floor((seconds % (3600 * 24)) / 3600);
+                    const minutes = Math.floor((seconds % 3600) / 60);
+                    const secs = seconds % 60;
+                    
+                    return `${days.toString().padStart(2, '0')}:${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                },
+                nextStep() {
+                    if (this.currentStep < 4) {
+                        this.currentStep++;
+                    }
+                    if (this.currentStep === 4) {
+                        this.orderNumber = Math.floor(Math.random() * 10000) + 1000;
+                    }
+                },
+                prevStep() {
+                    if (this.currentStep > 1) {
+                        this.currentStep--;
+                    }
+                },
+                newOrder() {
+                    // Сброс всех данных для нового заказа
+                    this.currentStep = 1;
+                    this.cart = [];
+                    this.selectedPromotions = [];
+                    this.deliveryOption = 'delivery';
+                    this.deliveryAddress = { street: '', house: '', apartment: '' };
+                    this.contactInfo = { name: '', phone: '', comment: '' };
+                    this.paymentMethod = 'card';
+                    this.cardInfo = { number: '', expiry: '', cvv: '' };
+                    this.orderNumber = Math.floor(Math.random() * 10000) + 1000;
+                }
+            },
+            mounted() {
+                // Обновление таймера акций
+                setInterval(() => {
+                    this.promotions.forEach(promotion => {
+                        if (promotion.timeLeft > 0) {
+                            promotion.timeLeft--;
+                        }
+                    });
+                }, 1000);
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

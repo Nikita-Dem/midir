@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Street Coffee - Меню</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #8B4513;
+            --secondary-color: #D2B48C;
+            --accent-color: #A0522D;
+            --light-color: #F5F5DC;
+            --dark-color: #3E2723;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+        }
+        
+        .navbar {
+            background-color: var(--primary-color);
+        }
+        
+        .navbar-brand, .nav-link {
+            color: var(--light-color) !important;
+        }
+        
+        .nav-link:hover {
+            color: var(--secondary-color) !important;
+        }
+        
+        .section-title {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+        
+        footer {
+            background-color: var(--dark-color);
+            color: var(--light-color);
+            padding: 40px 0;
+        }
+        
+        .menu-category {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .menu-item {
+            border-bottom: 1px dashed #ddd;
+            padding: 15px 0;
+            transition: all 0.3s ease;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .menu-item:hover {
+            background-color: #f9f9f9;
+            padding-left: 10px;
+        }
+        
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+        
+        .item-name {
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        .item-description {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .item-price {
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 1.1em;
+        }
+        
+        .category-title {
+            color: var(--accent-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--secondary-color);
+        }
+        
+        .menu-badge {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.7em;
+            margin-left: 8px;
+        }
+
+        /* Стили для изображений блюд */
+        .item-image {
+            position: absolute;
+            left: 50%;
+            bottom: -10px;
+            transform: translateX(-50%) translateY(100%);
+            width: 200px;
+            height: 150px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+            z-index: 1000;
+            background: white;
+            border: 3px solid var(--primary-color);
+        }
+
+        .menu-item:hover .item-image {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .menu-item:hover .item-image img {
+            transform: scale(1.05);
+        }
+
+        /* Адаптивность для мобильных устройств */
+        @media (max-width: 768px) {
+            .item-image {
+                width: 150px;
+                height: 120px;
+                left: 20px;
+                transform: translateY(100%);
+            }
+            
+            .menu-item:hover .item-image {
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-coffee"></i> Street Coffee
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Главная</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="menu.html">Меню</a>
+                    </li>
+               
+                    <li class="nav-item">
+                        <a class="nav-link" href="promotions.html">Акции </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="order.html">Онлайн-заказ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="reservation.html">Бронирование столика</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="contacts.html">Контакты</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="account.html">
+                            <i class="fas fa-user"></i> Личный кабинет
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <h1 class="section-title text-center">Наше меню</h1>
+        
+        <div class="row">
+            <!-- Кофе -->
+            <div class="col-lg-6">
+                <div class="menu-category">
+                    <h3 class="category-title">
+                        <i class="fas fa-coffee me-2"></i>Кофе
+                    </h3>
+                    <div class="menu-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="item-name">Эспрессо</div>
+                                <div class="item-description">Классический крепкий кофе</div>
+                            </div>
+                            <div class="item-price">180 ₽</div>
+                        </div>
+                        <div class="item-image">
+                            <img src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Эспрессо">
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="item-name">Американо</div>
+                                <div class="item-description">Эспрессо с горячей водой</div>
+                            </div>
+                            <div class="item-price">200 ₽</div>
+                        </div>
+                        <div class="item-image">
+                            <img src="https://images.unsplash.com/photo-1551030173-122aabc4489e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Американо">
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="item-name">Капучино</div>
+                                <div class="item-description">Эспрессо с молочной пенкой</div>
+                            </div>
+                            <div class="item-price">280 ₽</div>
+                        </div>
+                        <div class="item-image">
+                            <img src="https://images.unsplash.com/photo-1572442388796-11668a67e53d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Капучино">
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="item-name">Латте</div>
+                                <div class="item-description">Нежный кофе с молоком</div>
+                            </div>
+                            <div class="item-price">250 ₽</div>
+                        </div>
+                        <div class="item-image">
+                            <img src="https://images.unsplash.com/photo-1561047029-3000c68339ca?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Латте">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Десерты -->
+            <div class="col-lg-6">
+                <div class="menu-category">
+                    <h3 class="category-title">
+                        <i class="fas fa-cookie me-2"></i>Десерты
+                    </h3>
+                    <div class="menu-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="item-name">Тирамису</div>
+                                <div class="item-description">Итальянский десерт с кофе</div>
+                            </div>
+                            <div class="item-price">350 ₽</div>
+                        </div>
+                        <div class="item-image">
+                            <img src="https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Тирамису">
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="item-name">Чизкейк Нью-Йорк</div>
+                                <div class="item-description">Классический чизкейк</div>
+                            </div>
+                            <div class="item-price">320 ₽</div>
+                        </div>
+                        <div class="item-image">
+                            <img src="https://images.unsplash.com/photo-1565958011703-44f9829ba187?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Чизкейк">
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="item-name">Круассан с шоколадом</div>
+                                <div class="item-description">Свежий круассан</div>
+                            </div>
+                            <div class="item-price">180 ₽</div>
+                        </div>
+                        <div class="item-image">
+                            <img src="https://images.unsplash.com/photo-1555507036-ab794f27d2e5?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Круассан">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Холодные напитки -->
+            <div class="col-lg-6">
+                <div class="menu-category">
+                    <h3 class="category-title">
+                        <i class="fas fa-glass-whiskey me-2"></i>Холодные напитки
+                    </h3>
+                    <div class="menu-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="item-name">Айс Латте</div>
+                                <div class="item-description">Холодный латте со льдом</div>
+                            </div>
+                            <div class="item-price">280 ₽</div>
+                        </div>
+                        <div class="item-image">
+                            <img src="https://images.unsplash.com/photo-1461023058943-07fcbe16d735?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Айс Латте">
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="item-name">Фраппучино</div>
+                                <div class="item-description">Взбитый холодный кофе</div>
+                            </div>
+                            <div class="item-price">320 ₽</div>
+                        </div>
+                        <div class="item-image">
+                            <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Фраппучино">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Чай -->
+            <div class="col-lg-6">
+                <div class="menu-category">
+                    <h3 class="category-title">
+                        <i class="fas fa-mug-hot me-2"></i>Чай
+                    </h3>
+                    <div class="menu-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="item-name">Английский Breakfast</div>
+                                <div class="item-description">Классический черный чай</div>
+                            </div>
+                            <div class="item-price">200 ₽</div>
+                        </div>
+                        <div class="item-image">
+                            <img src="https://images.unsplash.com/photo-1556679343-c7306c1976bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Черный чай">
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="item-name">Зеленый чай с жасмином</div>
+                                <div class="item-description">Ароматный зеленый чай</div>
+                            </div>
+                            <div class="item-price">180 ₽</div>
+                        </div>
+                        <div class="item-image">
+                            <img src="https://images.unsplash.com/photo-1544787219-7f47ccb76574?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Зеленый чай">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5><i class="fas fa-coffee"></i> Street Coffee</h5>
+                    <p>Лучший кофе в городе с доставкой на дом или навынос.</p>
+                    <div class="social-links">
+                        <a href="#" class="text-light me-3"><i class="fab fa-vk"></i></a>
+                        <a href="#" class="text-light me-3"><i class="fab fa-telegram"></i></a>
+                        <a href="#" class="text-light me-3"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <h5>Контакты</h5>
+                    <p><i class="fas fa-map-marker-alt"></i> ул. Примерная, 123</p>
+                    <p><i class="fas fa-phone"></i> +7 (999) 123-45-67</p>
+                    <p><i class="fas fa-envelope"></i> info@streetcoffee.ru</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Часы работы</h5>
+                    <p>Пн-Пт: 8:00 - 22:00</p>
+                    <p>Сб-Вс: 9:00 - 23:00</p>
+                    <a href="contacts.html" class="btn btn-outline-light">Как добраться</a>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="text-center">
+                <p>&copy; 2023 Street Coffee. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

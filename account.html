@@ -1,0 +1,1933 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Street Coffee - Личный кабинет</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ... предыдущие стили без изменений ... */
+        
+        /* Дополнительные стили для улучшенного функционала */
+        .order-details {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+        
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        
+        .order-total {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #dee2e6;
+        }
+        
+        .address-actions, .payment-actions {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
+        
+        .settings-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .settings-section:last-child {
+            border-bottom: none;
+        }
+        
+        .notification-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+        
+        .form-switch .form-check-input {
+            width: 3em;
+            height: 1.5em;
+        }
+        
+        .loyalty-benefits {
+            margin-top: 20px;
+        }
+        
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .benefit-item i {
+            color: var(--primary-color);
+            margin-right: 10px;
+        }
+        
+        .order-timeline {
+            position: relative;
+            padding-left: 30px;
+            margin-top: 20px;
+        }
+        
+        .order-timeline::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: var(--secondary-color);
+        }
+        
+        .timeline-step {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .timeline-step::before {
+            content: '';
+            position: absolute;
+            left: -25px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            border: 2px solid white;
+        }
+        
+        .timeline-step.active::before {
+            background-color: var(--primary-color);
+        }
+        
+        .timeline-step.completed::before {
+            background-color: #28a745;
+        }
+        
+        .qr-code {
+            width: 150px;
+            height: 150px;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .subscription-card {
+            background: linear-gradient(135deg, #6f42c1, #8B4513);
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .badge-premium {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            color: #000;
+        }
+        
+        .premium-feature {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .premium-feature i {
+            margin-right: 10px;
+            color: #FFD700;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Навигация без изменений -->
+        <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+            <div class="container">
+                <a class="navbar-brand" href="index.html">
+                    <i class="fas fa-coffee"></i> Street Coffee
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.html">Главная</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="menu.html">Меню</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="promotions.html">Акции</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="order.html">Онлайн-заказ</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="reservation.html">Бронирование столика</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="contacts.html">Контакты</a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="account.html">
+                                <i class="fas fa-user"></i> 
+                                <span v-if="isLoggedIn">Личный кабинет</span>
+                                <span v-else>Войти</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Герой-секция без изменений -->
+        <section class="account-hero">
+            <div class="container">
+                <div class="row align-items-center" v-if="isLoggedIn">
+                    <div class="col-md-2 text-center">
+                        <img :src="user.avatar" class="user-avatar" alt="Аватар">
+                    </div>
+                    <div class="col-md-10">
+                        <h1 class="display-5 fw-bold">Добро пожаловать, {{ user.name }}!</h1>
+                        <p class="lead mb-0">Участник программы лояльности с {{ user.memberSince }}</p>
+                    </div>
+                </div>
+                <div class="row" v-else>
+                    <div class="col-12 text-center">
+                        <h1 class="display-5 fw-bold">Личный кабинет</h1>
+                        <p class="lead">Войдите или зарегистрируйтесь для доступа ко всем функциям</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="container my-5">
+            <!-- Гостевой доступ - форма регистрации/входа без изменений -->
+            <!-- ... код аутентификации без изменений ... -->
+
+            <!-- Авторизованный доступ - личный кабинет -->
+            <div v-else class="row">
+                <!-- Боковая панель без изменений -->
+                <div class="col-lg-3">
+                    <div class="account-sidebar">
+                        <ul class="nav-account">
+                            <li><a @click="setActiveTab('overview')" :class="{ active: activeTab === 'overview' }"><i class="fas fa-home"></i> Обзор</a></li>
+                            <li><a @click="setActiveTab('profile')" :class="{ active: activeTab === 'profile' }"><i class="fas fa-user-edit"></i> Профиль</a></li>
+                            <li><a @click="setActiveTab('orders')" :class="{ active: activeTab === 'orders' }"><i class="fas fa-shopping-bag"></i> Мои заказы</a></li>
+                            <li><a @click="setActiveTab('favorites')" :class="{ active: activeTab === 'favorites' }"><i class="fas fa-heart"></i> Избранное</a></li>
+                            <li><a @click="setActiveTab('addresses')" :class="{ active: activeTab === 'addresses' }"><i class="fas fa-map-marker-alt"></i> Адреса</a></li>
+                            <li><a @click="setActiveTab('payments')" :class="{ active: activeTab === 'payments' }"><i class="fas fa-credit-card"></i> Способы оплаты</a></li>
+                            <li><a @click="setActiveTab('settings')" :class="{ active: activeTab === 'settings' }"><i class="fas fa-cog"></i> Настройки</a></li>
+                            <li><a @click="logout"><i class="fas fa-sign-out-alt"></i> Выйти</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Карта лояльности без изменений -->
+                    <div class="loyalty-card">
+                        <h5>Программа лояльности</h5>
+                        <div class="loyalty-points">{{ user.loyaltyPoints.toLocaleString() }}</div>
+                        <p>баллов</p>
+                        
+                        <div class="progress-custom">
+                            <div class="progress-bar" :style="{ width: loyaltyProgress + '%' }"></div>
+                        </div>
+                        
+                        <small>До следующего уровня: {{ pointsToNextLevel }} баллов</small>
+                        <div class="mt-3">
+                            <span class="badge bg-light text-dark">{{ user.loyaltyLevel }}</span>
+                        </div>
+                        
+                        <!-- Преимущества уровня лояльности -->
+                        <div class="loyalty-benefits">
+                            <div class="benefit-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Скидка {{ getLoyaltyDiscount() }}% на все заказы</span>
+                            </div>
+                            <div class="benefit-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Бесплатная доставка от {{ getFreeDeliveryThreshold() }}₽</span>
+                            </div>
+                            <div class="benefit-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Приоритетное обслуживание</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Подписка на кофе -->
+                    <div class="subscription-card" v-if="user.subscription">
+                        <h5>Кофейная подписка</h5>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="badge badge-premium">PREMIUM</span>
+                            <span class="fw-bold">{{ user.subscription.remainingDeliveries }} доставок</span>
+                        </div>
+                        <p>Следующая доставка: {{ user.subscription.nextDelivery }}</p>
+                        <button class="btn btn-light btn-sm w-100" @click="manageSubscription">Управлять подпиской</button>
+                    </div>
+                </div>
+
+                <!-- Основной контент -->
+                <div class="col-lg-9">
+                    <!-- Обзор (улучшенный) -->
+                    <div v-if="activeTab === 'overview'" class="account-content">
+                        <h2 class="section-title">Обзор аккаунта</h2>
+                        
+                        <!-- Быстрые действия -->
+                        <div class="quick-actions">
+                            <a href="order.html" class="quick-action-btn">
+                                <i class="fas fa-shopping-cart fa-2x mb-2"></i>
+                                <div>Сделать заказ</div>
+                            </a>
+                            <a href="reservation.html" class="quick-action-btn">
+                                <i class="fas fa-calendar-alt fa-2x mb-2"></i>
+                                <div>Забронировать столик</div>
+                            </a>
+                            <a href="menu.html" class="quick-action-btn">
+                                <i class="fas fa-utensils fa-2x mb-2"></i>
+                                <div>Посмотреть меню</div>
+                            </a>
+                            <a href="promotions.html" class="quick-action-btn">
+                                <i class="fas fa-percent fa-2x mb-2"></i>
+                                <div>Акции</div>
+                            </a>
+                        </div>
+                        
+                        <!-- Статистика -->
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-number">{{ user.totalOrders }}</div>
+                                <div>Всего заказов</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">{{ formatCurrency(user.totalSpent) }}</div>
+                                <div>Всего потрачено</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">{{ favorites.length }}</div>
+                                <div>Избранных товаров</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">{{ user.totalReservations }}</div>
+                                <div>Бронирований</div>
+                            </div>
+                        </div>
+
+                        <!-- QR-код для быстрого заказа -->
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">Мой QR-код</h5>
+                                        <p class="card-text">Покажите на кассе для быстрого заказа и накопления баллов</p>
+                                        <div class="qr-code">
+                                            <i class="fas fa-qrcode fa-4x text-muted"></i>
+                                        </div>
+                                        <button class="btn btn-outline-primary mt-2" @click="showQRCode = true">Показать QR-код</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Персональные рекомендации</h5>
+                                        <p class="card-text">На основе ваших предпочтений</p>
+                                        <div v-if="personalRecommendations.length > 0">
+                                            <div v-for="rec in personalRecommendations.slice(0, 2)" :key="rec.id" class="d-flex align-items-center mb-2">
+                                                <img :src="rec.image" alt="" class="rounded me-2" width="40" height="40">
+                                                <div class="flex-grow-1">
+                                                    <div class="fw-bold">{{ rec.name }}</div>
+                                                    <small class="text-muted">{{ rec.description }}</small>
+                                                </div>
+                                                <button class="btn btn-sm btn-outline-primary" @click="orderItem(rec)">Заказать</button>
+                                            </div>
+                                        </div>
+                                        <div v-else class="text-center py-3">
+                                            <p class="text-muted">Сделайте несколько заказов, чтобы получить рекомендации</p>
+                                            <a href="menu.html" class="btn btn-sm btn-primary">Изучить меню</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Последние заказы -->
+                        <h4 class="mb-4 mt-5">Последние заказы</h4>
+                        <div v-if="recentOrders.length > 0">
+                            <div v-for="order in recentOrders" :key="order.id" class="order-card">
+                                <div class="row align-items-center">
+                                    <div class="col-md-6">
+                                        <h6>{{ order.number }}</h6>
+                                        <small class="text-muted">{{ formatDate(order.date) }}, {{ order.time }}</small>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <strong>{{ formatCurrency(order.amount) }}</strong>
+                                    </div>
+                                    <div class="col-md-3 text-end">
+                                        <span class="order-status" :class="'status-' + order.status">{{ getStatusText(order.status) }}</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Детали заказа -->
+                                <div class="order-details" v-if="expandedOrder === order.id">
+                                    <div class="order-item" v-for="item in order.items" :key="item.id">
+                                        <div>
+                                            <strong>{{ item.name }}</strong>
+                                            <div class="text-muted">× {{ item.quantity }}</div>
+                                        </div>
+                                        <div>{{ formatCurrency(item.price * item.quantity) }}</div>
+                                    </div>
+                                    <div class="order-total text-end">
+                                        Итого: {{ formatCurrency(order.amount) }}
+                                    </div>
+                                    <div class="order-timeline" v-if="order.timeline">
+                                        <div v-for="(step, index) in order.timeline" 
+                                             :key="index" 
+                                             class="timeline-step"
+                                             :class="{ 
+                                                 'active': step.active, 
+                                                 'completed': step.completed 
+                                             }">
+                                            <div class="fw-bold">{{ step.title }}</div>
+                                            <small class="text-muted">{{ step.time }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mt-2">
+                                    <div class="col-12 text-end">
+                                        <button v-if="order.status === 'pending'" @click="cancelOrder(order.id)" class="btn btn-sm btn-outline-danger">Отменить</button>
+                                        <button v-if="order.status === 'delivered'" @click="reorder(order.id)" class="btn btn-sm btn-outline-primary">Повторить заказ</button>
+                                        <button @click="toggleOrderDetails(order.id)" class="btn btn-sm btn-outline-secondary ms-2">
+                                            {{ expandedOrder === order.id ? 'Скрыть' : 'Детали' }}
+                                        </button>
+                                        <button v-if="order.status === 'completed' && !order.rated" @click="rateOrder(order.id)" class="btn btn-sm btn-outline-success ms-2">Оценить</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-center mt-3">
+                                <a href="#" @click="setActiveTab('orders')" class="btn btn-outline-primary">Все заказы</a>
+                            </div>
+                        </div>
+                        <div v-else class="empty-state">
+                            <i class="fas fa-shopping-bag"></i>
+                            <h5>Заказов пока нет</h5>
+                            <p>Сделайте свой первый заказ!</p>
+                            <a href="order.html" class="btn btn-primary">Сделать заказ</a>
+                        </div>
+
+                        <!-- Избранное -->
+                        <h4 class="mb-4 mt-5">Избранные товары</h4>
+                        <div v-if="favorites.length > 0">
+                            <div v-for="item in favorites.slice(0, 3)" :key="item.id" class="favorite-item">
+                                <img :src="item.image" class="favorite-image" :alt="item.name">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">{{ item.name }}</h6>
+                                    <small class="text-muted">{{ item.description }}</small>
+                                    <div class="mt-1">
+                                        <span class="badge bg-secondary me-1" v-for="tag in item.tags" :key="tag">{{ tag }}</span>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="fw-bold text-primary mb-1">{{ formatCurrency(item.price) }}</div>
+                                    <button @click="orderItem(item)" class="btn btn-sm btn-outline-primary me-2">Заказать</button>
+                                    <button @click="removeFromFavorites(item.id)" class="btn btn-sm btn-remove">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="text-center mt-3" v-if="favorites.length > 3">
+                                <a href="#" @click="setActiveTab('favorites')" class="btn btn-outline-primary">Показать все избранное</a>
+                            </div>
+                        </div>
+                        <div v-else class="empty-state">
+                            <i class="fas fa-heart"></i>
+                            <h5>Избранных товаров нет</h5>
+                            <p>Добавляйте товары в избранное, чтобы быстро заказывать их снова</p>
+                            <a href="menu.html" class="btn btn-primary">Посмотреть меню</a>
+                        </div>
+                    </div>
+
+                    <!-- Профиль (улучшенный) -->
+                    <div v-if="activeTab === 'profile'" class="account-content">
+                        <h2 class="section-title">Редактирование профиля</h2>
+                        
+                        <div v-if="profileSaved" class="confirmation-message">
+                            <i class="fas fa-check-circle me-2"></i>Профиль успешно сохранен!
+                        </div>
+                        
+                        <form @submit.prevent="saveProfile">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group-custom">
+                                        <label class="form-label-custom">Имя *</label>
+                                        <input 
+                                            type="text" 
+                                            class="form-control form-control-custom" 
+                                            :class="{ 'error': profileErrors.name }"
+                                            v-model="user.name"
+                                            required
+                                        >
+                                        <div class="error-message" v-if="profileErrors.name">{{ profileErrors.name }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group-custom">
+                                        <label class="form-label-custom">Email *</label>
+                                        <input 
+                                            type="email" 
+                                            class="form-control form-control-custom" 
+                                            :class="{ 'error': profileErrors.email }"
+                                            v-model="user.email"
+                                            required
+                                        >
+                                        <div class="error-message" v-if="profileErrors.email">{{ profileErrors.email }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group-custom">
+                                        <label class="form-label-custom">Телефон</label>
+                                        <input 
+                                            type="tel" 
+                                            class="form-control form-control-custom" 
+                                            v-model="user.phone"
+                                        >
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group-custom">
+                                        <label class="form-label-custom">Дата рождения</label>
+                                        <input 
+                                            type="date" 
+                                            class="form-control form-control-custom" 
+                                            v-model="user.birthDate"
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group-custom">
+                                <label class="form-label-custom">Предпочтения в кофе</label>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <span v-for="pref in coffeePreferences" :key="pref.id" 
+                                          class="badge" 
+                                          :class="user.coffeePreferences.includes(pref.id) ? 'bg-primary' : 'bg-light text-dark'"
+                                          @click="toggleCoffeePreference(pref.id)"
+                                          style="cursor: pointer;">
+                                        {{ pref.name }}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group-custom">
+                                <label class="form-label-custom">О себе</label>
+                                <textarea 
+                                    class="form-control form-control-custom" 
+                                    rows="4" 
+                                    v-model="user.bio"
+                                    placeholder="Расскажите немного о себе..."
+                                ></textarea>
+                            </div>
+                            
+                            <div class="form-group-custom">
+                                <label class="form-label-custom">Уведомления</label>
+                                <div class="notification-item">
+                                    <div>
+                                        <div class="fw-bold">Email уведомления</div>
+                                        <small class="text-muted">Уведомления о заказах, акциях и новостях</small>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" v-model="user.notifications.email" id="emailNotifications">
+                                    </div>
+                                </div>
+                                <div class="notification-item">
+                                    <div>
+                                        <div class="fw-bold">SMS уведомления</div>
+                                        <small class="text-muted">Уведомления о статусе заказа</small>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" v-model="user.notifications.sms" id="smsNotifications">
+                                    </div>
+                                </div>
+                                <div class="notification-item">
+                                    <div>
+                                        <div class="fw-bold">Уведомления об акциях</div>
+                                        <small class="text-muted">Специальные предложения и скидки</small>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" v-model="user.notifications.promotions" id="promoNotifications">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary px-4">Сохранить изменения</button>
+                        </form>
+                    </div>
+
+                    <!-- Мои заказы (улучшенный) -->
+                    <div v-if="activeTab === 'orders'" class="account-content">
+                        <h2 class="section-title">Мои заказы</h2>
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn" 
+                                    :class="orderFilter === 'all' ? 'btn-primary' : 'btn-outline-primary'"
+                                    @click="orderFilter = 'all'">Все</button>
+                                <button type="button" class="btn"
+                                    :class="orderFilter === 'pending' ? 'btn-primary' : 'btn-outline-primary'"
+                                    @click="orderFilter = 'pending'">В процессе</button>
+                                <button type="button" class="btn"
+                                    :class="orderFilter === 'completed' ? 'btn-primary' : 'btn-outline-primary'"
+                                    @click="orderFilter = 'completed'">Завершенные</button>
+                                <button type="button" class="btn"
+                                    :class="orderFilter === 'cancelled' ? 'btn-primary' : 'btn-outline-primary'"
+                                    @click="orderFilter = 'cancelled'">Отмененные</button>
+                            </div>
+                            
+                            <div class="input-group" style="max-width: 300px;">
+                                <input type="text" class="form-control" placeholder="Поиск заказа..." v-model="orderSearch">
+                                <button class="btn btn-outline-secondary" type="button">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div v-if="filteredOrders.length > 0">
+                            <div v-for="order in filteredOrders" :key="order.id" class="order-card">
+                                <div class="row align-items-center">
+                                    <div class="col-md-4">
+                                        <h6>{{ order.number }}</h6>
+                                        <small class="text-muted">{{ formatDate(order.date) }}, {{ order.time }}</small>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <strong>{{ formatCurrency(order.amount) }}</strong>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="order-status" :class="'status-' + order.status">{{ getStatusText(order.status) }}</span>
+                                    </div>
+                                    <div class="col-md-3 text-end">
+                                        <button @click="toggleOrderDetails(order.id)" class="btn btn-sm btn-outline-secondary me-2">
+                                            {{ expandedOrder === order.id ? 'Скрыть' : 'Детали' }}
+                                        </button>
+                                        <button v-if="order.status === 'completed' && !order.rated" @click="rateOrder(order.id)" class="btn btn-sm btn-outline-success">Оценить</button>
+                                        <button v-if="order.status === 'delivered'" @click="reorder(order.id)" class="btn btn-sm btn-outline-primary">Повторить</button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Детали заказа -->
+                                <div class="order-details" v-if="expandedOrder === order.id">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <h6>Состав заказа:</h6>
+                                            <div class="order-item" v-for="item in order.items" :key="item.id">
+                                                <div>
+                                                    <strong>{{ item.name }}</strong>
+                                                    <div class="text-muted">× {{ item.quantity }}</div>
+                                                    <small v-if="item.customizations" class="text-muted">{{ item.customizations }}</small>
+                                                </div>
+                                                <div>{{ formatCurrency(item.price * item.quantity) }}</div>
+                                            </div>
+                                            <div class="order-total text-end">
+                                                Итого: {{ formatCurrency(order.amount) }}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <h6>Информация о доставке:</h6>
+                                            <p v-if="order.deliveryAddress">
+                                                <i class="fas fa-map-marker-alt me-2"></i>
+                                                {{ order.deliveryAddress }}
+                                            </p>
+                                            <p v-if="order.deliveryTime">
+                                                <i class="fas fa-clock me-2"></i>
+                                                {{ order.deliveryTime }}
+                                            </p>
+                                            <p v-if="order.paymentMethod">
+                                                <i class="fas fa-credit-card me-2"></i>
+                                                {{ order.paymentMethod }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Таймлайн заказа -->
+                                    <div class="order-timeline" v-if="order.timeline">
+                                        <h6 class="mb-3">Статус заказа:</h6>
+                                        <div v-for="(step, index) in order.timeline" 
+                                             :key="index" 
+                                             class="timeline-step"
+                                             :class="{ 
+                                                 'active': step.active, 
+                                                 'completed': step.completed 
+                                             }">
+                                            <div class="fw-bold">{{ step.title }}</div>
+                                            <small class="text-muted">{{ step.time }}</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Действия с заказом -->
+                                    <div class="mt-3 text-end">
+                                        <button v-if="order.status === 'pending'" @click="cancelOrder(order.id)" class="btn btn-sm btn-outline-danger">Отменить заказ</button>
+                                        <button v-if="order.status === 'completed' && !order.rated" @click="rateOrder(order.id)" class="btn btn-sm btn-outline-success ms-2">Оценить заказ</button>
+                                        <button v-if="order.status === 'delivered'" @click="reorder(order.id)" class="btn btn-sm btn-outline-primary ms-2">Повторить заказ</button>
+                                        <button class="btn btn-sm btn-outline-secondary ms-2" @click="printOrder(order.id)">Распечатать</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else class="empty-state">
+                            <i class="fas fa-shopping-bag"></i>
+                            <h5>Заказов не найдено</h5>
+                            <p v-if="orderFilter !== 'all'">Попробуйте изменить фильтр или поисковый запрос</p>
+                            <p v-else>У вас пока нет заказов</p>
+                            <a href="order.html" class="btn btn-primary">Сделать заказ</a>
+                        </div>
+                    </div>
+
+                    <!-- Избранное (улучшенный) -->
+                    <div v-if="activeTab === 'favorites'" class="account-content">
+                        <h2 class="section-title">Избранное</h2>
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div>
+                                <span class="text-muted">Товаров в избранном: {{ favorites.length }}</span>
+                            </div>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn" 
+                                    :class="favoritesFilter === 'all' ? 'btn-primary' : 'btn-outline-primary'"
+                                    @click="favoritesFilter = 'all'">Все</button>
+                                <button type="button" class="btn"
+                                    :class="favoritesFilter === 'available' ? 'btn-primary' : 'btn-outline-primary'"
+                                    @click="favoritesFilter = 'available'">В наличии</button>
+                                <button type="button" class="btn"
+                                    :class="favoritesFilter === 'coffee' ? 'btn-primary' : 'btn-outline-primary'"
+                                    @click="favoritesFilter = 'coffee'">Кофе</button>
+                                <button type="button" class="btn"
+                                    :class="favoritesFilter === 'food' ? 'btn-primary' : 'btn-outline-primary'"
+                                    @click="favoritesFilter = 'food'">Еда</button>
+                            </div>
+                        </div>
+                        
+                        <div v-if="filteredFavorites.length > 0" class="row">
+                            <div v-for="item in filteredFavorites" :key="item.id" class="col-md-6 mb-4">
+                                <div class="favorite-item h-100">
+                                    <img :src="item.image" class="favorite-image" :alt="item.name">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">{{ item.name }}</h6>
+                                        <small class="text-muted">{{ item.description }}</small>
+                                        <div class="mt-2">
+                                            <span class="badge bg-secondary me-1" v-for="tag in item.tags" :key="tag">{{ tag }}</span>
+                                        </div>
+                                        <div class="mt-2" v-if="item.nutrition">
+                                            <small class="text-muted">
+                                                <i class="fas fa-fire me-1"></i>{{ item.nutrition.calories }} ккал
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="fw-bold text-primary mb-2">{{ formatCurrency(item.price) }}</div>
+                                        <div class="mb-2" v-if="item.availability">
+                                            <span v-if="item.availability.available" class="badge bg-success">В наличии</span>
+                                            <span v-else class="badge bg-secondary">Нет в наличии</span>
+                                        </div>
+                                        <button @click="orderItem(item)" 
+                                                class="btn btn-sm btn-outline-primary me-1"
+                                                :disabled="!item.availability.available">
+                                            Заказать
+                                        </button>
+                                        <button @click="removeFromFavorites(item.id)" class="btn btn-sm btn-remove">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else class="empty-state">
+                            <i class="fas fa-heart"></i>
+                            <h5>Избранных товаров нет</h5>
+                            <p>Добавляйте товары в избранное, чтобы быстро заказывать их снова</p>
+                            <a href="menu.html" class="btn btn-primary">Посмотреть меню</a>
+                        </div>
+                    </div>
+
+                    <!-- Адреса (улучшенный) -->
+                    <div v-if="activeTab === 'addresses'" class="account-content">
+                        <h2 class="section-title">Мои адреса</h2>
+                        
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div v-if="addresses.length > 0">
+                                    <div v-for="address in addresses" :key="address.id" 
+                                         class="address-card mb-3"
+                                         :class="{ 'default': address.isDefault }">
+                                        <div class="address-actions">
+                                            <button @click="editAddress(address)" class="btn btn-sm btn-edit me-1">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button @click="removeAddress(address.id)" class="btn btn-sm btn-remove">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                        
+                                        <h5>{{ address.title }}</h5>
+                                        <p class="mb-1">{{ address.street }}</p>
+                                        <p class="mb-1">{{ address.city }}, {{ address.zipCode }}</p>
+                                        <p class="mb-2" v-if="address.notes">
+                                            <small class="text-muted">Примечание: {{ address.notes }}</small>
+                                        </p>
+                                        
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <span v-if="address.isDefault" class="badge bg-primary">Основной адрес</span>
+                                            </div>
+                                            <div>
+                                                <button v-if="!address.isDefault" 
+                                                        @click="setDefaultAddress(address.id)" 
+                                                        class="btn btn-sm btn-outline-primary">
+                                                    Сделать основным
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div v-else class="empty-state">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <h5>Адресов не найдено</h5>
+                                    <p>Добавьте адрес для быстрого оформления заказов</p>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body">
+                                        <h5 class="card-title" v-if="!editingAddress">Добавить новый адрес</h5>
+                                        <h5 class="card-title" v-else>Редактировать адрес</h5>
+                                        
+                                        <form @submit.prevent="saveAddress">
+                                            <div class="form-group-custom">
+                                                <label class="form-label-custom">Название</label>
+                                                <input type="text" class="form-control form-control-custom" 
+                                                       v-model="currentAddress.title" 
+                                                       placeholder="Дом, Работа и т.д." required>
+                                            </div>
+                                            
+                                            <div class="form-group-custom">
+                                                <label class="form-label-custom">Город</label>
+                                                <input type="text" class="form-control form-control-custom" 
+                                                       v-model="currentAddress.city" required>
+                                            </div>
+                                            
+                                            <div class="form-group-custom">
+                                                <label class="form-label-custom">Улица, дом</label>
+                                                <input type="text" class="form-control form-control-custom" 
+                                                       v-model="currentAddress.street" required>
+                                            </div>
+                                            
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <div class="form-group-custom">
+                                                        <label class="form-label-custom">Квартира/офис</label>
+                                                        <input type="text" class="form-control form-control-custom" 
+                                                               v-model="currentAddress.apartment">
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="form-group-custom">
+                                                        <label class="form-label-custom">Индекс</label>
+                                                        <input type="text" class="form-control form-control-custom" 
+                                                               v-model="currentAddress.zipCode">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="form-group-custom">
+                                                <label class="form-label-custom">Примечание для курьера</label>
+                                                <textarea class="form-control form-control-custom" 
+                                                          v-model="currentAddress.notes"
+                                                          rows="2"
+                                                          placeholder="Код домофона, этаж и т.д."></textarea>
+                                            </div>
+                                            
+                                            <div class="form-check mb-3">
+                                                <input class="form-check-input" type="checkbox" 
+                                                       v-model="currentAddress.isDefault" id="defaultAddress">
+                                                <label class="form-check-label" for="defaultAddress">
+                                                    Сделать основным адресом
+                                                </label>
+                                            </div>
+                                            
+                                            <div class="d-grid gap-2">
+                                                <button type="submit" class="btn btn-primary">
+                                                    {{ editingAddress ? 'Сохранить изменения' : 'Добавить адрес' }}
+                                                </button>
+                                                <button v-if="editingAddress" 
+                                                        type="button" 
+                                                        class="btn btn-outline-secondary"
+                                                        @click="cancelEditAddress">
+                                                    Отмена
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Способы оплаты (улучшенный) -->
+                    <div v-if="activeTab === 'payments'" class="account-content">
+                        <h2 class="section-title">Способы оплаты</h2>
+                        
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div v-if="paymentMethods.length > 0">
+                                    <div v-for="method in paymentMethods" :key="method.id" 
+                                         class="payment-card mb-3"
+                                         :class="{ 'default': method.isDefault }">
+                                        <div class="d-flex align-items-center">
+                                            <div class="me-3">
+                                                <i class="fab fa-cc-visa fa-2x text-primary" v-if="method.type === 'visa'"></i>
+                                                <i class="fab fa-cc-mastercard fa-2x text-warning" v-else-if="method.type === 'mastercard'"></i>
+                                                <i class="fab fa-cc-mir fa-2x text-danger" v-else-if="method.type === 'mir'"></i>
+                                                <i class="fas fa-credit-card fa-2x text-secondary" v-else></i>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <h5 class="mb-1">{{ method.name }}</h5>
+                                                <p class="mb-0">•••• {{ method.last4 }}</p>
+                                                <small class="text-muted">Истекает: {{ method.expiry }}</small>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="payment-actions">
+                                            <button @click="editPaymentMethod(method)" class="btn btn-sm btn-edit me-1">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button @click="removePaymentMethod(method.id)" class="btn btn-sm btn-remove">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                        
+                                        <div class="mt-2">
+                                            <span v-if="method.isDefault" class="badge bg-primary">Основной способ</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div v-else class="empty-state">
+                                    <i class="fas fa-credit-card"></i>
+                                    <h5>Способы оплаты не добавлены</h5>
+                                    <p>Добавьте способ оплаты для быстрого оформления заказов</p>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body">
+                                        <h5 class="card-title" v-if="!editingPayment">Добавить способ оплаты</h5>
+                                        <h5 class="card-title" v-else>Редактировать способ оплаты</h5>
+                                        
+                                        <form @submit.prevent="savePaymentMethod">
+                                            <div class="form-group-custom">
+                                                <label class="form-label-custom">Тип карты</label>
+                                                <select class="form-control form-control-custom" v-model="currentPayment.type" required>
+                                                    <option value="">Выберите тип</option>
+                                                    <option value="visa">Visa</option>
+                                                    <option value="mastercard">Mastercard</option>
+                                                    <option value="mir">Мир</option>
+                                                </select>
+                                            </div>
+                                            
+                                            <div class="form-group-custom">
+                                                <label class="form-label-custom">Номер карты</label>
+                                                <input type="text" class="form-control form-control-custom" 
+                                                       v-model="currentPayment.number"
+                                                       placeholder="1234 5678 9012 3456" required>
+                                            </div>
+                                            
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <div class="form-group-custom">
+                                                        <label class="form-label-custom">Срок действия</label>
+                                                        <input type="text" class="form-control form-control-custom" 
+                                                               v-model="currentPayment.expiry"
+                                                               placeholder="ММ/ГГ" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="form-group-custom">
+                                                        <label class="form-label-custom">CVV</label>
+                                                        <input type="text" class="form-control form-control-custom" 
+                                                               v-model="currentPayment.cvv"
+                                                               placeholder="123" required>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="form-group-custom">
+                                                <label class="form-label-custom">Имя владельца</label>
+                                                <input type="text" class="form-control form-control-custom" 
+                                                       v-model="currentPayment.holder"
+                                                       placeholder="IVAN IVANOV" required>
+                                            </div>
+                                            
+                                            <div class="form-check mb-3">
+                                                <input class="form-check-input" type="checkbox" 
+                                                       v-model="currentPayment.isDefault" id="defaultPayment">
+                                                <label class="form-check-label" for="defaultPayment">
+                                                    Сделать основным способом оплаты
+                                                </label>
+                                            </div>
+                                            
+                                            <div class="d-grid gap-2">
+                                                <button type="submit" class="btn btn-primary">
+                                                    {{ editingPayment ? 'Сохранить изменения' : 'Добавить карту' }}
+                                                </button>
+                                                <button v-if="editingPayment" 
+                                                        type="button" 
+                                                        class="btn btn-outline-secondary"
+                                                        @click="cancelEditPayment">
+                                                    Отмена
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Настройки (улучшенный) -->
+                    <div v-if="activeTab === 'settings'" class="account-content">
+                        <h2 class="section-title">Настройки аккаунта</h2>
+                        
+                        <div class="settings-section">
+                            <h4 class="mb-3">Конфиденциальность</h4>
+                            <div class="notification-item">
+                                <div>
+                                    <div class="fw-bold">Публичный профиль</div>
+                                    <small class="text-muted">Разрешить другим пользователям видеть ваш профиль</small>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" v-model="privacySettings.profileVisible">
+                                </div>
+                            </div>
+                            <div class="notification-item">
+                                <div>
+                                    <div class="fw-bold">Показывать активность</div>
+                                    <small class="text-muted">Разрешить отображение ваших заказов и отзывов</small>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" v-model="privacySettings.showActivity">
+                                </div>
+                            </div>
+                            <div class="notification-item">
+                                <div>
+                                    <div class="fw-bold">Персонализированные рекомендации</div>
+                                    <small class="text-muted">Использовать данные о ваших заказах для улучшения рекомендаций</small>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" v-model="privacySettings.personalizedRecommendations">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-section">
+                            <h4 class="mb-3">Уведомления</h4>
+                            <div class="notification-item">
+                                <div>
+                                    <div class="fw-bold">Email уведомления</div>
+                                    <small class="text-muted">Уведомления о заказах, акциях и новостях</small>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" v-model="user.notifications.email">
+                                </div>
+                            </div>
+                            <div class="notification-item">
+                                <div>
+                                    <div class="fw-bold">SMS уведомления</div>
+                                    <small class="text-muted">Уведомления о статусе заказа</small>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" v-model="user.notifications.sms">
+                                </div>
+                            </div>
+                            <div class="notification-item">
+                                <div>
+                                    <div class="fw-bold">Push-уведомления</div>
+                                    <small class="text-muted">Уведомления в браузере и мобильном приложении</small>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" v-model="user.notifications.push">
+                                </div>
+                            </div>
+                            <div class="notification-item">
+                                <div>
+                                    <div class="fw-bold">Уведомления об акциях</div>
+                                    <small class="text-muted">Специальные предложения и скидки</small>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" v-model="user.notifications.promotions">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-section">
+                            <h4 class="mb-3">Безопасность</h4>
+                            <div class="d-grid gap-2 col-md-6">
+                                <button class="btn btn-outline-primary" @click="changePassword">
+                                    <i class="fas fa-key me-2"></i>Изменить пароль
+                                </button>
+                                <button class="btn btn-outline-secondary" @click="enableTwoFactorAuth">
+                                    <i class="fas fa-shield-alt me-2"></i>
+                                    {{ user.twoFactorEnabled ? 'Отключить' : 'Включить' }} двухфакторную аутентификацию
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-section">
+                            <h4 class="mb-3">Экспорт данных</h4>
+                            <p class="text-muted">Вы можете запросить экспорт всех ваших данных из системы.</p>
+                            <button class="btn btn-outline-primary" @click="exportData">
+                                <i class="fas fa-download me-2"></i>Экспортировать мои данные
+                            </button>
+                        </div>
+                        
+                        <div class="settings-section">
+                            <h4 class="mb-3 text-danger">Опасная зона</h4>
+                            <p class="text-muted">Удаление аккаунта невозможно отменить. Все ваши данные будут безвозвратно удалены.</p>
+                            <button class="btn btn-outline-danger" @click="deleteAccount">
+                                <i class="fas fa-exclamation-triangle me-2"></i>Удалить аккаунт
+                            </button>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end mt-4">
+                            <button class="btn btn-primary px-4" @click="saveSettings">Сохранить настройки</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h5><i class="fas fa-coffee"></i> Street Coffee</h5>
+                        <p>Лучший кофе в городе с доставкой на дом или навынос.</p>
+                        <div class="social-links">
+                            <a href="#" class="text-light me-3"><i class="fab fa-vk"></i></a>
+                            <a href="#" class="text-light me-3"><i class="fab fa-telegram"></i></a>
+                            <a href="#" class="text-light me-3"><i class="fab fa-instagram"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>Контакты</h5>
+                        <p><i class="fas fa-map-marker-alt"></i> ул. Примерная, 123</p>
+                        <p><i class="fas fa-phone"></i> +7 (999) 123-45-67</p>
+                        <p><i class="fas fa-envelope"></i> info@streetcoffee.ru</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>Часы работы</h5>
+                        <p>Пн-Пт: 8:00 - 22:00</p>
+                        <p>Сб-Вс: 9:00 - 23:00</p>
+                        <a href="contacts.html" class="btn btn-outline-light">Как добраться</a>
+                    </div>
+                </div>
+                <hr class="my-4">
+                <div class="text-center">
+                    <p>&copy; 2023 Street Coffee. Все права защищены.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        const { createApp } = Vue;
+        
+        createApp({
+            data() {
+                return {
+                    isLoggedIn: false,
+                    authMode: 'login',
+                    authLoading: false,
+                    authError: '',
+                    loginData: {
+                        email: '',
+                        password: ''
+                    },
+                    registerData: {
+                        name: '',
+                        email: '',
+                        phone: '',
+                        password: '',
+                        confirmPassword: '',
+                        agreeTerms: false
+                    },
+                    activeTab: 'overview',
+                    orderFilter: 'all',
+                    orderSearch: '',
+                    favoritesFilter: 'all',
+                    expandedOrder: null,
+                    editingAddress: false,
+                    editingPayment: false,
+                    showQRCode: false,
+                    profileSaved: false,
+                    user: {
+                        name: 'Иван',
+                        email: 'ivan@example.com',
+                        phone: '+7 (999) 123-45-67',
+                        birthDate: '1990-05-15',
+                        bio: 'Люблю качественный кофе и уютные кофейни.',
+                        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80',
+                        memberSince: '2022',
+                        loyaltyPoints: 1250,
+                        loyaltyLevel: 'Silver Member',
+                        totalOrders: 24,
+                        totalSpent: 18560,
+                        totalReservations: 12,
+                        coffeePreferences: [1, 3],
+                        subscription: {
+                            active: true,
+                            plan: 'Premium',
+                            remainingDeliveries: 5,
+                            nextDelivery: '2023-11-15'
+                        },
+                        twoFactorEnabled: false,
+                        notifications: {
+                            email: true,
+                            sms: false,
+                            push: true,
+                            promotions: true
+                        }
+                    },
+                    profileErrors: {
+                        name: '',
+                        email: ''
+                    },
+                    coffeePreferences: [
+                        { id: 1, name: 'Эспрессо' },
+                        { id: 2, name: 'Американо' },
+                        { id: 3, name: 'Капучино' },
+                        { id: 4, name: 'Латте' },
+                        { id: 5, name: 'Флэт Уайт' },
+                        { id: 6, name: 'Раф' },
+                        { id: 7, name: 'Холодный кофе' }
+                    ],
+                    orders: [
+                        {
+                            id: 1,
+                            number: 'Заказ #SC-2345',
+                            date: '2023-10-15',
+                            time: '14:30',
+                            amount: 1250,
+                            status: 'completed',
+                            rated: false,
+                            deliveryAddress: 'ул. Примерная, 123, кв. 45',
+                            deliveryTime: '15:00 - 15:30',
+                            paymentMethod: 'Карта •••• 1234',
+                            items: [
+                                { id: 1, name: 'Капучино', price: 350, quantity: 2, customizations: 'Двойной эспрессо' },
+                                { id: 2, name: 'Тирамису', price: 550, quantity: 1 }
+                            ],
+                            timeline: [
+                                { title: 'Заказ принят', time: '14:30', completed: true },
+                                { title: 'Готовится', time: '14:35', completed: true },
+                                { title: 'Передан курьеру', time: '14:50', completed: true },
+                                { title: 'Доставлен', time: '15:15', completed: true, active: false }
+                            ]
+                        },
+                        {
+                            id: 2,
+                            number: 'Заказ #SC-2344',
+                            date: '2023-10-14',
+                            time: '09:15',
+                            amount: 850,
+                            status: 'completed',
+                            rated: true,
+                            deliveryAddress: 'ул. Примерная, 123, кв. 45',
+                            deliveryTime: '09:45 - 10:15',
+                            paymentMethod: 'Карта •••• 1234',
+                            items: [
+                                { id: 3, name: 'Американо', price: 250, quantity: 1 },
+                                { id: 4, name: 'Круассан', price: 300, quantity: 2 }
+                            ],
+                            timeline: [
+                                { title: 'Заказ принят', time: '09:15', completed: true },
+                                { title: 'Готовится', time: '09:20', completed: true },
+                                { title: 'Передан курьеру', time: '09:35', completed: true },
+                                { title: 'Доставлен', time: '09:55', completed: true, active: false }
+                            ]
+                        },
+                        {
+                            id: 3,
+                            number: 'Заказ #SC-2343',
+                            date: '2023-10-13',
+                            time: '18:45',
+                            amount: 1200,
+                            status: 'pending',
+                            rated: false,
+                            deliveryAddress: 'ул. Примерная, 123, кв. 45',
+                            deliveryTime: '19:15 - 19:45',
+                            paymentMethod: 'Карта •••• 1234',
+                            items: [
+                                { id: 5, name: 'Латте', price: 350, quantity: 2, customizations: 'Кокосовое молоко' },
+                                { id: 6, name: 'Чизкейк', price: 500, quantity: 1 }
+                            ],
+                            timeline: [
+                                { title: 'Заказ принят', time: '18:45', completed: true },
+                                { title: 'Готовится', time: '18:50', completed: false, active: true },
+                                { title: 'Передан курьеру', time: null, completed: false },
+                                { title: 'Доставлен', time: null, completed: false }
+                            ]
+                        }
+                    ],
+                    favorites: [
+                        {
+                            id: 1,
+                            name: 'Латте',
+                            description: 'Нежный кофейный напиток с молочной пенкой',
+                            price: 350,
+                            image: 'https://images.unsplash.com/photo-1511537190424-bbbab87ac5eb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80',
+                            tags: ['кофе', 'молочный'],
+                            nutrition: { calories: 120 },
+                            availability: { available: true }
+                        },
+                        {
+                            id: 2,
+                            name: 'Круассан с миндалем',
+                            description: 'Слоеный круассан с миндальной начинкой',
+                            price: 300,
+                            image: 'https://images.unsplash.com/photo-1555507038-44d9c8bcfc80?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80',
+                            tags: ['выпечка', 'сладкое'],
+                            nutrition: { calories: 280 },
+                            availability: { available: true }
+                        },
+                        {
+                            id: 3,
+                            name: 'Американо',
+                            description: 'Классический черный кофе',
+                            price: 250,
+                            image: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80',
+                            tags: ['кофе', 'черный'],
+                            nutrition: { calories: 5 },
+                            availability: { available: true }
+                        }
+                    ],
+                    addresses: [
+                        {
+                            id: 1,
+                            title: 'Дом',
+                            city: 'Москва',
+                            street: 'ул. Примерная, 123',
+                            apartment: '45',
+                            zipCode: '123456',
+                            notes: 'Код домофона: 45B',
+                            isDefault: true
+                        },
+                        {
+                            id: 2,
+                            title: 'Работа',
+                            city: 'Москва',
+                            street: 'ул. Деловая, 67',
+                            apartment: '12',
+                            zipCode: '123457',
+                            notes: '5 этаж, офис 512',
+                            isDefault: false
+                        }
+                    ],
+                    paymentMethods: [
+                        {
+                            id: 1,
+                            type: 'visa',
+                            name: 'Visa',
+                            last4: '1234',
+                            expiry: '05/25',
+                            isDefault: true
+                        },
+                        {
+                            id: 2,
+                            type: 'mastercard',
+                            name: 'Mastercard',
+                            last4: '5678',
+                            expiry: '11/24',
+                            isDefault: false
+                        }
+                    ],
+                    currentAddress: {
+                        id: null,
+                        title: '',
+                        city: '',
+                        street: '',
+                        apartment: '',
+                        zipCode: '',
+                        notes: '',
+                        isDefault: false
+                    },
+                    currentPayment: {
+                        id: null,
+                        type: '',
+                        number: '',
+                        expiry: '',
+                        cvv: '',
+                        holder: '',
+                        isDefault: false
+                    },
+                    privacySettings: {
+                        profileVisible: true,
+                        showActivity: false,
+                        personalizedRecommendations: true
+                    },
+                    personalRecommendations: [
+                        {
+                            id: 1,
+                            name: 'Флэт Уайт',
+                            description: 'Идеальный баланс кофе и молока',
+                            price: 380,
+                            image: 'https://images.unsplash.com/photo-1561047029-3000c68339ca?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80'
+                        },
+                        {
+                            id: 2,
+                            name: 'Круассан с шоколадом',
+                            description: 'Слоеный круассан с шоколадной начинкой',
+                            price: 320,
+                            image: 'https://images.unsplash.com/photo-1568254183919-78a4f43a2879?ixlib=rb-4.0.3&auto=format&fit=crop&w=1469&q=80'
+                        }
+                    ]
+                }
+            },
+            computed: {
+                recentOrders() {
+                    return this.orders.slice(0, 3);
+                },
+                filteredOrders() {
+                    let filtered = this.orders;
+                    
+                    // Фильтр по статусу
+                    if (this.orderFilter !== 'all') {
+                        filtered = filtered.filter(order => order.status === this.orderFilter);
+                    }
+                    
+                    // Поиск
+                    if (this.orderSearch) {
+                        const searchTerm = this.orderSearch.toLowerCase();
+                        filtered = filtered.filter(order => 
+                            order.number.toLowerCase().includes(searchTerm) ||
+                            order.items.some(item => item.name.toLowerCase().includes(searchTerm))
+                        );
+                    }
+                    
+                    return filtered;
+                },
+                filteredFavorites() {
+                    let filtered = this.favorites;
+                    
+                    if (this.favoritesFilter === 'available') {
+                        filtered = filtered.filter(item => item.availability.available);
+                    } else if (this.favoritesFilter === 'coffee') {
+                        filtered = filtered.filter(item => item.tags.includes('кофе'));
+                    } else if (this.favoritesFilter === 'food') {
+                        filtered = filtered.filter(item => item.tags.includes('выпечка') || item.tags.includes('сладкое'));
+                    }
+                    
+                    return filtered;
+                },
+                loyaltyProgress() {
+                    const totalPoints = 2000;
+                    return (this.user.loyaltyPoints / totalPoints) * 100;
+                },
+                pointsToNextLevel() {
+                    return 2000 - this.user.loyaltyPoints;
+                }
+            },
+            methods: {
+                // Аутентификация (без изменений)
+                async login() {
+                    this.authLoading = true;
+                    this.authError = '';
+                    
+                    try {
+                        await new Promise(resolve => setTimeout(resolve, 1500));
+                        
+                        const users = JSON.parse(localStorage.getItem('streetCoffeeUsers')) || [];
+                        const user = users.find(u => u.email === this.loginData.email && u.password === this.loginData.password);
+                        
+                        if (user) {
+                            this.isLoggedIn = true;
+                            this.user = { ...this.user, ...user };
+                            localStorage.setItem('streetCoffeeCurrentUser', JSON.stringify(this.user));
+                            this.authError = '';
+                        } else {
+                            this.authError = 'Неверный email или пароль';
+                        }
+                    } catch (error) {
+                        this.authError = 'Ошибка при входе. Попробуйте еще раз.';
+                    } finally {
+                        this.authLoading = false;
+                    }
+                },
+                
+                async register() {
+                    this.authLoading = true;
+                    this.authError = '';
+                    
+                    try {
+                        if (this.registerData.password !== this.registerData.confirmPassword) {
+                            this.authError = 'Пароли не совпадают';
+                            return;
+                        }
+                        
+                        if (!this.registerData.agreeTerms) {
+                            this.authError = 'Необходимо согласие с условиями использования';
+                            return;
+                        }
+                        
+                        await new Promise(resolve => setTimeout(resolve, 1500));
+                        
+                        const users = JSON.parse(localStorage.getItem('streetCoffeeUsers')) || [];
+                        const existingUser = users.find(u => u.email === this.registerData.email);
+                        
+                        if (existingUser) {
+                            this.authError = 'Пользователь с таким email уже существует';
+                            return;
+                        }
+                        
+                        const newUser = {
+                            id: Date.now(),
+                            name: this.registerData.name,
+                            email: this.registerData.email,
+                            phone: this.registerData.phone,
+                            password: this.registerData.password,
+                            memberSince: new Date().getFullYear().toString(),
+                            loyaltyPoints: 0,
+                            loyaltyLevel: 'New Member',
+                            totalOrders: 0,
+                            totalSpent: 0,
+                            totalReservations: 0,
+                            coffeePreferences: [],
+                            notifications: {
+                                email: true,
+                                sms: false,
+                                push: true,
+                                promotions: true
+                            }
+                        };
+                        
+                        users.push(newUser);
+                        localStorage.setItem('streetCoffeeUsers', JSON.stringify(users));
+                        
+                        this.isLoggedIn = true;
+                        this.user = { ...this.user, ...newUser };
+                        localStorage.setItem('streetCoffeeCurrentUser', JSON.stringify(this.user));
+                        
+                        this.authError = '';
+                        this.authMode = 'login';
+                        
+                    } catch (error) {
+                        this.authError = 'Ошибка при регистрации. Попробуйте еще раз.';
+                    } finally {
+                        this.authLoading = false;
+                    }
+                },
+                
+                logout() {
+                    if (confirm('Вы уверены, что хотите выйти?')) {
+                        this.isLoggedIn = false;
+                        localStorage.removeItem('streetCoffeeCurrentUser');
+                        this.loginData = { email: '', password: '' };
+                        this.authMode = 'login';
+                    }
+                },
+                
+                checkAuth() {
+                    const currentUser = localStorage.getItem('streetCoffeeCurrentUser');
+                    if (currentUser) {
+                        this.isLoggedIn = true;
+                        this.user = { ...this.user, ...JSON.parse(currentUser) };
+                    }
+                },
+                
+                // Основные методы личного кабинета
+                setActiveTab(tab) {
+                    this.activeTab = tab;
+                    this.profileSaved = false;
+                    this.expandedOrder = null;
+                    this.editingAddress = false;
+                    this.editingPayment = false;
+                },
+                
+                toggleOrderDetails(orderId) {
+                    this.expandedOrder = this.expandedOrder === orderId ? null : orderId;
+                },
+                
+                formatCurrency(amount) {
+                    return new Intl.NumberFormat('ru-RU', {
+                        style: 'currency',
+                        currency: 'RUB',
+                        minimumFractionDigits: 0
+                    }).format(amount);
+                },
+                
+                formatDate(dateString) {
+                    const options = { day: 'numeric', month: 'long', year: 'numeric' };
+                    return new Date(dateString).toLocaleDateString('ru-RU', options);
+                },
+                
+                getStatusText(status) {
+                    const statusMap = {
+                        'completed': 'Выполнен',
+                        'pending': 'В процессе',
+                        'cancelled': 'Отменен',
+                        'delivered': 'Доставлен'
+                    };
+                    return statusMap[status] || status;
+                },
+                
+                getLoyaltyDiscount() {
+                    const level = this.user.loyaltyLevel;
+                    if (level.includes('Gold')) return 15;
+                    if (level.includes('Silver')) return 10;
+                    if (level.includes('Bronze')) return 5;
+                    return 0;
+                },
+                
+                getFreeDeliveryThreshold() {
+                    const level = this.user.loyaltyLevel;
+                    if (level.includes('Gold')) return 300;
+                    if (level.includes('Silver')) return 500;
+                    if (level.includes('Bronze')) return 700;
+                    return 1000;
+                },
+                
+                // Профиль
+                saveProfile() {
+                    this.profileErrors = {};
+                    let isValid = true;
+
+                    if (!this.user.name.trim()) {
+                        this.profileErrors.name = 'Имя обязательно для заполнения';
+                        isValid = false;
+                    }
+
+                    if (!this.user.email.trim()) {
+                        this.profileErrors.email = 'Email обязателен для заполнения';
+                        isValid = false;
+                    } else if (!this.validateEmail(this.user.email)) {
+                        this.profileErrors.email = 'Введите корректный email';
+                        isValid = false;
+                    }
+
+                    if (isValid) {
+                        localStorage.setItem('streetCoffeeUserProfile', JSON.stringify(this.user));
+                        localStorage.setItem('streetCoffeeCurrentUser', JSON.stringify(this.user));
+                        
+                        setTimeout(() => {
+                            this.profileSaved = true;
+                        }, 1000);
+                    }
+                },
+                
+                validateEmail(email) {
+                    const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+                    return re.test(email);
+                },
+                
+                toggleCoffeePreference(prefId) {
+                    const index = this.user.coffeePreferences.indexOf(prefId);
+                    if (index > -1) {
+                        this.user.coffeePreferences.splice(index, 1);
+                    } else {
+                        this.user.coffeePreferences.push(prefId);
+                    }
+                },
+                
+                // Заказы
+                cancelOrder(orderId) {
+                    if (confirm('Вы уверены, что хотите отменить этот заказ?')) {
+                        const order = this.orders.find(o => o.id === orderId);
+                        if (order) {
+                            order.status = 'cancelled';
+                            this.saveOrdersToStorage();
+                            alert('Заказ отменен');
+                        }
+                    }
+                },
+                
+                reorder(orderId) {
+                    const order = this.orders.find(o => o.id === orderId);
+                    if (order) {
+                        localStorage.setItem('streetCoffeeReorder', JSON.stringify(order));
+                        alert('Заказ добавлен в корзину! Перейдите на страницу заказа для оформления.');
+                    }
+                },
+                
+                rateOrder(orderId) {
+                    const order = this.orders.find(o => o.id === orderId);
+                    if (order) {
+                        const rating = prompt('Оцените заказ от 1 до 5 звезд:');
+                        if (rating && rating >= 1 && rating <= 5) {
+                            order.rated = true;
+                            order.rating = parseInt(rating);
+                            this.saveOrdersToStorage();
+                            alert('Спасибо за вашу оценку!');
+                        }
+                    }
+                },
+                
+                printOrder(orderId) {
+                    const order = this.orders.find(o => o.id === orderId);
+                    if (order) {
+                        // В реальном приложении здесь будет вызов API для печати
+                        alert(`Печать заказа ${order.number}`);
+                    }
+                },
+                
+                // Избранное
+                orderItem(item) {
+                    const cartItems = JSON.parse(localStorage.getItem('streetCoffeeCart')) || [];
+                    cartItems.push({
+                        id: Date.now(),
+                        name: item.name,
+                        price: item.price,
+                        quantity: 1,
+                        image: item.image
+                    });
+                    localStorage.setItem('streetCoffeeCart', JSON.stringify(cartItems));
+                    alert('Товар "' + item.name + '" добавлен в корзину!');
+                },
+                
+                removeFromFavorites(itemId) {
+                    if (confirm('Удалить товар из избранного?')) {
+                        this.favorites = this.favorites.filter(item => item.id !== itemId);
+                        localStorage.setItem('streetCoffeeFavorites', JSON.stringify(this.favorites));
+                    }
+                },
+                
+                // Адреса
+                editAddress(address) {
+                    this.currentAddress = { ...address };
+                    this.editingAddress = true;
+                },
+                
+                cancelEditAddress() {
+                    this.currentAddress = {
+                        id: null,
+                        title: '',
+                        city: '',
+                        street: '',
+                        apartment: '',
+                        zipCode: '',
+                        notes: '',
+                        isDefault: false
+                    };
+                    this.editingAddress = false;
+                },
+                
+                saveAddress() {
+                    if (this.editingAddress) {
+                        // Обновление существующего адреса
+                        const index = this.addresses.findIndex(a => a.id === this.currentAddress.id);
+                        if (index !== -1) {
+                            this.addresses[index] = { ...this.currentAddress };
+                        }
+                    } else {
+                        // Добавление нового адреса
+                        this.currentAddress.id = Date.now();
+                        this.addresses.push({ ...this.currentAddress });
+                    }
+                    
+                    if (this.currentAddress.isDefault) {
+                        this.addresses.forEach(addr => {
+                            if (addr.id !== this.currentAddress.id) {
+                                addr.isDefault = false;
+                            }
+                        });
+                    }
+                    
+                    localStorage.setItem('streetCoffeeAddresses', JSON.stringify(this.addresses));
+                    this.cancelEditAddress();
+                    alert(this.editingAddress ? 'Адрес обновлен!' : 'Адрес добавлен!');
+                },
+                
+                removeAddress(addressId) {
+                    if (confirm('Удалить этот адрес?')) {
+                        this.addresses = this.addresses.filter(addr => addr.id !== addressId);
+                        localStorage.setItem('streetCoffeeAddresses', JSON.stringify(this.addresses));
+                    }
+                },
+                
+                setDefaultAddress(addressId) {
+                    this.addresses.forEach(addr => {
+                        addr.isDefault = addr.id === addressId;
+                    });
+                    localStorage.setItem('streetCoffeeAddresses', JSON.stringify(this.addresses));
+                    alert('Основной адрес изменен!');
+                },
+                
+                // Способы оплаты
+                editPaymentMethod(method) {
+                    this.currentPayment = { ...method };
+                    this.editingPayment = true;
+                },
+                
+                cancelEditPayment() {
+                    this.currentPayment = {
+                        id: null,
+                        type: '',
+                        number: '',
+                        expiry: '',
+                        cvv: '',
+                        holder: '',
+                        isDefault: false
+                    };
+                    this.editingPayment = false;
+                },
+                
+                savePaymentMethod() {
+                    if (this.editingPayment) {
+                        // Обновление существующего способа оплаты
+                        const index = this.paymentMethods.findIndex(p => p.id === this.currentPayment.id);
+                        if (index !== -1) {
+                            this.paymentMethods[index] = { ...this.currentPayment };
+                        }
+                    } else {
+                        // Добавление нового способа оплаты
+                        this.currentPayment.id = Date.now();
+                        this.currentPayment.last4 = this.currentPayment.number.slice(-4);
+                        this.paymentMethods.push({ ...this.currentPayment });
+                    }
+                    
+                    if (this.currentPayment.isDefault) {
+                        this.paymentMethods.forEach(pm => {
+                            if (pm.id !== this.currentPayment.id) {
+                                pm.isDefault = false;
+                            }
+                        });
+                    }
+                    
+                    localStorage.setItem('streetCoffeePaymentMethods', JSON.stringify(this.paymentMethods));
+                    this.cancelEditPayment();
+                    alert(this.editingPayment ? 'Способ оплаты обновлен!' : 'Способ оплаты добавлен!');
+                },
+                
+                removePaymentMethod(methodId) {
+                    if (confirm('Удалить этот способ оплаты?')) {
+                        this.paymentMethods = this.paymentMethods.filter(pm => pm.id !== methodId);
+                        localStorage.setItem('streetCoffeePaymentMethods', JSON.stringify(this.paymentMethods));
+                    }
+                },
+                
+                // Настройки
+                saveSettings() {
+                    localStorage.setItem('streetCoffeePrivacySettings', JSON.stringify(this.privacySettings));
+                    localStorage.setItem('streetCoffeeCurrentUser', JSON.stringify(this.user));
+                    alert('Настройки сохранены!');
+                },
+                
+                changePassword() {
+                    const newPassword = prompt('Введите новый пароль:');
+                    if (newPassword) {
+                        // В реальном приложении здесь будет вызов API для смены пароля
+                        alert('Пароль успешно изменен!');
+                    }
+                },
+                
+                enableTwoFactorAuth() {
+                    this.user.twoFactorEnabled = !this.user.twoFactorEnabled;
+                    alert(`Двухфакторная аутентификация ${this.user.twoFactorEnabled ? 'включена' : 'отключена'}!`);
+                },
+                
+                exportData() {
+                    // В реальном приложении здесь будет вызов API для экспорта данных
+                    alert('Запрос на экспорт данных отправлен. Вы получите email со ссылкой для скачивания.');
+                },
+                
+                deleteAccount() {
+                    if (confirm('Вы уверены, что хотите удалить аккаунт? Это действие нельзя отменить.')) {
+                        if (confirm('ВНИМАНИЕ: Все ваши данные будут удалены безвозвратно. Для подтверждения введите "УДАЛИТЬ":') === 'УДАЛИТЬ') {
+                            // В реальном приложении здесь будет вызов API для удаления аккаунта
+                            this.logout();
+                            alert('Ваш аккаунт был удален.');
+                        }
+                    }
+                },
+                
+                manageSubscription() {
+                    alert('Переход на страницу управления подпиской');
+                },
+                
+                // Сохранение данных
+                saveOrdersToStorage() {
+                    localStorage.setItem('streetCoffeeOrders', JSON.stringify(this.orders));
+                },
+                
+                initFromStorage() {
+                    const savedProfile = localStorage.getItem('streetCoffeeUserProfile');
+                    if (savedProfile) {
+                        this.user = { ...this.user, ...JSON.parse(savedProfile) };
+                    }
+                    
+                    const savedFavorites = localStorage.getItem('streetCoffeeFavorites');
+                    if (savedFavorites) {
+                        this.favorites = JSON.parse(savedFavorites);
+                    }
+                    
+                    const savedAddresses = localStorage.getItem('streetCoffeeAddresses');
+                    if (savedAddresses) {
+                        this.addresses = JSON.parse(savedAddresses);
+                    }
+                    
+                    const savedPayments = localStorage.getItem('streetCoffeePaymentMethods');
+                    if (savedPayments) {
+                        this.paymentMethods = JSON.parse(savedPayments);
+                    }
+                    
+                    const savedPrivacy = localStorage.getItem('streetCoffeePrivacySettings');
+                    if (savedPrivacy) {
+                        this.privacySettings = JSON.parse(savedPrivacy);
+                    }
+                    
+                    const savedOrders = localStorage.getItem('streetCoffeeOrders');
+                    if (savedOrders) {
+                        this.orders = JSON.parse(savedOrders);
+                    }
+                }
+            },
+            mounted() {
+                this.checkAuth();
+                if (this.isLoggedIn) {
+                    this.initFromStorage();
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
